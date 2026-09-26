@@ -65,7 +65,16 @@ th, td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: ri
 th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
 thead th { color: var(--muted); font-weight: 600; border-bottom: 1px solid #b9bec5; }
 
-.chart { width: 100%; }
+.chart-shell { display: flex; flex-direction: column; width: 100%; }
+.chart-title { flex: 0 0 auto; font-size: 14px; font-weight: 600; line-height: 1.4; }
+.chart-legend {
+  display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center;
+  gap: 6px 24px; min-height: 26px; margin-top: 2px;
+  color: #333; font-size: 12px; line-height: 20px;
+}
+.chart-legend-item { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.chart-legend-swatch { display: inline-block; width: 18px; height: 4px; border-radius: 2px; }
+.chart { flex: 1 1 auto; min-height: 0; width: 100%; }
 .caption { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
 .note { border-left: 3px solid var(--line); padding-left: 10px; margin-bottom: 8px; }
 .error { color: #8a1c1c; }
