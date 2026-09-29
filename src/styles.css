@@ -80,6 +80,22 @@ thead th { color: var(--muted); font-weight: 600; border-bottom: 1px solid #b9be
 .error { color: #8a1c1c; }
 .loading { color: var(--muted); }
 
+.modules { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 4px; }
+.modules button {
+  font: inherit; font-size: 13px; padding: 6px 12px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink);
+}
+.modules button.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.modules .pending { margin-left: 6px; font-size: 11px; color: var(--muted); }
+.placeholder { margin-top: 16px; }
+.pending-text { color: var(--muted); }
+
+.filters { display: flex; flex-wrap: wrap; gap: 12px 20px; margin: 16px 0 4px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.tags span { font-size: 12px; padding: 1px 8px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: #fff; }
+.pool-note { margin: 0; font-size: 13px; color: var(--muted); }
+.market-error { margin: 6px 0 0; font-size: 12.5px; color: #8a4b1c; }
+
 @media (max-width: 600px) {
   .header h1 { font-size: 19px; }
   .spec { grid-template-columns: 1fr; }

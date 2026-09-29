@@ -3,7 +3,7 @@ import * as echarts from "echarts/core";
 import { BarChart, LineChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
-import type { Num } from "./factorData";
+import type { Num } from "./format";
 
 echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
 
@@ -13,6 +13,7 @@ export interface Series {
   type?: "line" | "bar";
   color?: string;
   width?: number;
+  dashed?: boolean;
 }
 
 interface Props {
@@ -70,7 +71,7 @@ export default function FactorChart({ title, categories, series, valueFormat, yA
         showSymbol: false,
         barMaxWidth: 28,
         color: s.color ?? PALETTE[i % PALETTE.length],
-        lineStyle: { width: s.width ?? (i === 0 ? 1.5 : 2.25) },
+        lineStyle: { width: s.width ?? (i === 0 ? 1.5 : 2.25), type: s.dashed ? ("dashed" as const) : ("solid" as const) },
         z: i + 1,
       })),
     });
@@ -91,7 +92,11 @@ export default function FactorChart({ title, categories, series, valueFormat, yA
             <span className="chart-legend-item" key={s.name}>
               <span
                 className="chart-legend-swatch"
-                style={{ backgroundColor: s.color ?? PALETTE[i % PALETTE.length] }}
+                style={
+                  s.dashed
+                    ? { height: 0, borderTop: `3px dashed ${s.color ?? PALETTE[i % PALETTE.length]}`, borderRadius: 0 }
+                    : { backgroundColor: s.color ?? PALETTE[i % PALETTE.length] }
+                }
                 aria-hidden="true"
               />
               {s.name}

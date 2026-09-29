@@ -1,86 +1,46 @@
-import { useEffect, useState } from "react";
-import CorePerformance from "./CorePerformance";
-import StabilityRisk from "./StabilityRisk";
-import { loadFactor, loadIndex, type FactorIndexEntry, type FactorReport } from "./factorData";
+import { useState } from "react";
+import SingleFactorPage from "./modules/single_factor/SingleFactorPage";
 
-type Tab = "core" | "stability";
+const MODULES = [
+  { id: "single_factor", name: "单因子回测", description: "单因子的定义、IC、分组收益、稳定性和风险。", ready: true },
+  { id: "factor_relationships", name: "因子相互解释", description: "因子相关性、增量解释力、聚类和冗余分析。", ready: false },
+  { id: "long_only_backtest", name: "Long-only回测", description: "单因子多头组合的基准超额、换手、成本和回撤。", ready: false },
+  { id: "composite_backtest", name: "组合因子回测", description: "多因子合成、权重、组合表现和归因。", ready: false },
+  { id: "live_composite", name: "组合因子实盘表现", description: "组合因子的最新信号和样本外表现。", ready: false },
+  { id: "live_long_only", name: "Long-only实盘表现", description: "实际多头组合的持仓、净值、交易和归因。", ready: false },
+];
 
 export default function App() {
-  const [index, setIndex] = useState<FactorIndexEntry[]>([]);
-  const [selected, setSelected] = useState<string>("");
-  const [report, setReport] = useState<FactorReport | null>(null);
-  const [tab, setTab] = useState<Tab>("core");
-  const [error, setError] = useState<string>("");
-
-  useEffect(() => {
-    loadIndex()
-      .then((entries) => {
-        setIndex(entries);
-        if (entries.length) setSelected(entries[0].id);
-      })
-      .catch((e: Error) => setError(e.message));
-  }, []);
-
-  useEffect(() => {
-    const entry = index.find((e) => e.id === selected);
-    if (!entry) return;
-    let cancelled = false;
-    setReport(null);
-    loadFactor(entry)
-      .then((r) => !cancelled && setReport(r))
-      .catch((e: Error) => !cancelled && setError(e.message));
-    return () => {
-      cancelled = true;
-    };
-  }, [index, selected]);
-
-  const ic = report?.stability.monthly_ic ?? [];
-  const period = ic.length ? `${ic[0].date.slice(0, 7)} 至 ${ic[ic.length - 1].date.slice(0, 7)}` : "";
+  const [active, setActive] = useState(MODULES[0].id);
+  const module = MODULES.find((m) => m.id === active)!;
 
   return (
     <div className="page">
       <header className="header">
         <div className="title">
-          <h1>成长因子单因子回测</h1>
+          <h1>成长因子量化研究</h1>
           <p className="subtitle">复现：招商证券《成长投资全解析——基本面量化系列研究之六》</p>
         </div>
-        <label className="selector">
-          <span>因子</span>
-          <select value={selected} onChange={(e) => setSelected(e.target.value)}>
-            {index.map((e) => (
-              <option key={e.id} value={e.id}>
-                Factor {e.id} · {e.name_cn}
-              </option>
-            ))}
-          </select>
-        </label>
       </header>
 
-      {error && <p className="error">{error}</p>}
+      <nav className="modules" aria-label="网站模块">
+        {MODULES.map((m) => (
+          <button key={m.id} className={m.id === active ? "active" : ""} onClick={() => setActive(m.id)}>
+            {m.name}
+            {!m.ready && <span className="pending">待开发</span>}
+          </button>
+        ))}
+      </nav>
 
-      {report && (
-        <>
-          <section className="summary">
-            <h2>
-              {report.factor.name_cn} <span className="en">{report.factor.name_en}</span>
-            </h2>
-            <p>{report.definition.economic_hypothesis}</p>
-            <p className="source">
-              结果来源：正式验收回测 run {report.provenance.source_run_id}；股票池：{report.provenance.primary_branch.pool_display_name}；
-              样本期：{period}（月度调仓）。网页只展示已冻结的正式结果，不重新计算回测。
-            </p>
-          </section>
-
-          <nav className="tabs">
-            <button className={tab === "core" ? "active" : ""} onClick={() => setTab("core")}>定义与核心表现</button>
-            <button className={tab === "stability" ? "active" : ""} onClick={() => setTab("stability")}>稳定性与风险</button>
-          </nav>
-
-          {tab === "core" ? <CorePerformance report={report} /> : <StabilityRisk report={report} />}
-        </>
+      {module.ready ? (
+        <SingleFactorPage />
+      ) : (
+        <section className="card placeholder">
+          <h2>{module.name}</h2>
+          <p>{module.description}</p>
+          <p className="pending-text">待开发</p>
+        </section>
       )}
-
-      {!report && !error && <p className="loading">加载中…</p>}
     </div>
   );
 }

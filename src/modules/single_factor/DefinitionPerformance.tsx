@@ -1,11 +1,14 @@
 import { useMemo } from "react";
-import FactorChart from "./FactorChart";
-import { metricValue, num, pct, type FactorReport } from "./factorData";
+import FactorChart from "../../shared/FactorChart";
+import { num, pct } from "../../shared/format";
+import { CLASSIFICATION_CN, metricValue, type FactorReport } from "./data";
 
-export default function CorePerformance({ report }: { report: FactorReport }) {
+export default function DefinitionPerformance({ report }: { report: FactorReport }) {
   const { definition: d, core_performance: core, notes } = report;
   const groups = core.decile_returns.filter((r) => r.group !== "G10−G1");
   const longShort = core.decile_returns.find((r) => r.group === "G10−G1");
+  const poolName = new Map(core.pool_metrics.map((m) => [m.pool, m.pool_display_name]));
+  const chartPool = report.provenance.primary_branch.pool_display_name;
 
   const decileSeries = useMemo(
     () => [{ name: "年化收益", type: "bar" as const, data: groups.map((r) => r.arithmetic_annualized_return) }],
@@ -54,10 +57,10 @@ export default function CorePerformance({ report }: { report: FactorReport }) {
       </section>
 
       <section className="card">
-        <FactorChart title="十档分组年化收益（算术年化，月均收益×12）" categories={decileCats} series={decileSeries} valueFormat="percent" />
+        <FactorChart title={`十档分组年化收益——${chartPool}`} categories={decileCats} series={decileSeries} valueFormat="percent" />
         {longShort && (
           <p className="caption">
-            多空组合（G10−G1）：月均 {pct(longShort.mean_monthly_return)}，算术年化 {pct(longShort.arithmetic_annualized_return)}，
+            算术年化 = 月均收益 × 12。多空组合（G10−G1）：月均 {pct(longShort.mean_monthly_return)}，算术年化 {pct(longShort.arithmetic_annualized_return)}，
             有效月份 {longShort.valid_month_count}。
           </p>
         )}
@@ -90,15 +93,14 @@ export default function CorePerformance({ report }: { report: FactorReport }) {
       <section className="card">
         <h2>已登记的复现差异</h2>
         {notes.known_replication_discrepancies.length === 0 ? (
-          <p>验收记录中该因子没有超出项目容差（±20%）的指标差异。</p>
+          <p>验收记录没有单独登记超出项目容差（±20%）的指标差异。各指标的完整差异见上方对比表。</p>
         ) : (
           notes.known_replication_discrepancies.map((x) => (
-            <div key={x.metric} className="note">
+            <div key={`${x.pool}-${x.metric}`} className="note">
               <p>
-                <strong>{x.metric_display_name}</strong>：复现 {metricValue(x.metric, x.replicated)}，原文{" "}
-                {metricValue(x.metric, x.paper)}，相对差 {pct(x.relative_difference, 1)}（{x.classification}）。
+                <strong>{poolName.get(x.pool) ?? x.pool} · {x.metric_display_name}</strong>：复现 {metricValue(x.metric, x.replicated)}，原文{" "}
+                {metricValue(x.metric, x.paper)}，相对差 {pct(x.relative_difference, 1)}。{CLASSIFICATION_CN[x.classification] ?? x.classification}。
               </p>
-              {x.registered_note && <p className="caption">{x.registered_note}</p>}
             </div>
           ))
         )}

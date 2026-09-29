@@ -1,15 +1,47 @@
-import { useMemo } from "react";
-import FactorChart from "./FactorChart";
-import { num, pct, type FactorReport } from "./factorData";
+import { useEffect, useMemo, useState } from "react";
+import FactorChart, { type Series } from "../../shared/FactorChart";
+import { num, pct } from "../../shared/format";
+import { loadCsi300, navPoints, type BenchmarkReport, type FactorReport } from "./data";
 
 const TOP_INDUSTRIES = 10;
 
+type MarketState = { status: "loading" } | { status: "ok"; data: BenchmarkReport } | { status: "error" };
+
 export default function StabilityRisk({ report }: { report: FactorReport }) {
   const { stability: s, risk_exposure: r } = report;
+  const [market, setMarket] = useState<MarketState>({ status: "loading" });
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCsi300()
+      .then((data) => !cancelled && setMarket({ status: "ok", data }))
+      .catch(() => !cancelled && setMarket({ status: "error" }));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const charts = useMemo(() => {
     const icDates = s.monthly_ic.map((x) => x.date);
-    const navDates = s.long_short_nav.map((x) => x.date);
+    const factorNav = navPoints(s.long_short_nav);
+    const navDates = [...factorNav.keys()];
+    const navSeries: Series[] = [
+      { name: "因子多空组合 G10−G1", data: navDates.map((d) => factorNav.get(d) ?? null), color: "#1f4e79", width: 2 },
+    ];
+    if (market.status === "ok") {
+      const marketNav = navPoints(market.data.series);
+      const marketBase = marketNav.get(navDates[0]) ?? null;
+      navSeries.push({
+        name: `${market.data.benchmark.name_cn}（市场参考）`,
+        data: navDates.map((d) => {
+          const v = marketNav.get(d);
+          return v == null || marketBase == null ? null : v / marketBase;
+        }),
+        color: "#b0602a",
+        width: 1.75,
+        dashed: true,
+      });
+    }
     const covDates = s.coverage.map((x) => x.date);
     const sizeDates = r.size.map((x) => x.date);
     const dispDates = r.industry.monthly_dispersion.map((x) => x.date);
@@ -24,7 +56,7 @@ export default function StabilityRisk({ report }: { report: FactorReport }) {
         { name: "12个月滚动均值", data: s.monthly_ic.map((x) => x.rolling_12m_ic), color: "#1f4e79", width: 2 },
       ],
       navDates,
-      navSeries: [{ name: "多空累计净值", data: s.long_short_nav.map((x) => x.nav) }],
+      navSeries,
       covDates,
       covSeries: [{ name: "覆盖率", data: s.coverage.map((x) => x.coverage_rate) }],
       sizeDates,
@@ -44,20 +76,26 @@ export default function StabilityRisk({ report }: { report: FactorReport }) {
         { name: "中性化后", type: "bar" as const, data: bias.map((x) => x.mean_exposure_after_neutralization), color: "#1f4e79" },
       ],
     };
-  }, [report]);
+  }, [report, market]);
 
   const top3 = charts.bias.slice(0, 3);
 
   return (
     <div className="tab-body">
+      <p className="pool-note">本页图表股票池：{report.provenance.primary_branch.pool_display_name}</p>
+
       <section className="card">
         <FactorChart title="月度 Rank IC 与 12个月滚动均值" categories={charts.icDates} series={charts.icSeries} valueFormat="percent" />
         <p className="caption">滚动均值要求窗口内12个月全部有效，前11个月不显示；缺失月份不按0处理。</p>
       </section>
 
       <section className="card">
-        <FactorChart title="多空组合（G10−G1）累计净值" categories={charts.navDates} series={charts.navSeries} valueFormat="number" yAxisName="净值" />
-        <p className="caption">初始净值为1，按月度多空收益逐月复利；缺失月份不计收益，净值留空。</p>
+        <FactorChart title="多空组合累计净值与沪深300市场参考" categories={charts.navDates} series={charts.navSeries} valueFormat="number" yAxisName="净值" />
+        {market.status === "loading" && <p className="caption">沪深300价格指数（市场参考）加载中…</p>}
+        {market.status === "error" && <p className="market-error">市场参考暂时无法加载</p>}
+        <p className="caption">
+          两条曲线初始值均为1，并采用相同的月初开盘至下月月初开盘区间。沪深300用于反映同期市场环境；因子多空组合接近市场中性，因此两者不是同风险性质的直接业绩比较。
+        </p>
       </section>
 
       <section className="card">

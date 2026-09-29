@@ -1528,997 +1528,1196 @@
   ],
   "long_short_nav": [
    {
-    "date": "2010-01-04",
+    "period_start": "2010-01-04",
+    "period_end": "2010-02-01",
     "monthly_long_short_return": 0.03359518945,
     "nav": 1.033595189
    },
    {
-    "date": "2010-02-01",
+    "period_start": "2010-02-01",
+    "period_end": "2010-03-01",
     "monthly_long_short_return": -0.02944613996,
     "nav": 1.003159801
    },
    {
-    "date": "2010-03-01",
+    "period_start": "2010-03-01",
+    "period_end": "2010-04-01",
     "monthly_long_short_return": -0.02379531401,
     "nav": 0.9792892984
    },
    {
-    "date": "2010-04-01",
+    "period_start": "2010-04-01",
+    "period_end": "2010-05-04",
     "monthly_long_short_return": 0.02629687319,
     "nav": 1.005041545
    },
    {
-    "date": "2010-05-04",
+    "period_start": "2010-05-04",
+    "period_end": "2010-06-01",
     "monthly_long_short_return": 0.01736953522,
     "nav": 1.022498649
    },
    {
-    "date": "2010-06-01",
+    "period_start": "2010-06-01",
+    "period_end": "2010-07-01",
     "monthly_long_short_return": 0.03106940462,
     "nav": 1.054267074
    },
    {
-    "date": "2010-07-01",
+    "period_start": "2010-07-01",
+    "period_end": "2010-08-02",
     "monthly_long_short_return": -0.02304865641,
     "nav": 1.029967634
    },
    {
-    "date": "2010-08-02",
+    "period_start": "2010-08-02",
+    "period_end": "2010-09-01",
     "monthly_long_short_return": 0.007244057803,
     "nav": 1.037428779
    },
    {
-    "date": "2010-09-01",
+    "period_start": "2010-09-01",
+    "period_end": "2010-10-08",
     "monthly_long_short_return": 0.003965755279,
     "nav": 1.041542968
    },
    {
-    "date": "2010-10-08",
+    "period_start": "2010-10-08",
+    "period_end": "2010-11-01",
     "monthly_long_short_return": -0.009712713165,
     "nav": 1.03142676
    },
    {
-    "date": "2010-11-01",
+    "period_start": "2010-11-01",
+    "period_end": "2010-12-01",
     "monthly_long_short_return": 0.0162393252,
     "nav": 1.048176434
    },
    {
-    "date": "2010-12-01",
+    "period_start": "2010-12-01",
+    "period_end": "2011-01-04",
     "monthly_long_short_return": 0.02120456119,
     "nav": 1.070402556
    },
    {
-    "date": "2011-01-04",
+    "period_start": "2011-01-04",
+    "period_end": "2011-02-01",
     "monthly_long_short_return": -0.01059168041,
     "nav": 1.059065194
    },
    {
-    "date": "2011-02-01",
+    "period_start": "2011-02-01",
+    "period_end": "2011-03-01",
     "monthly_long_short_return": -0.01274038047,
     "nav": 1.0455723
    },
    {
-    "date": "2011-03-01",
+    "period_start": "2011-03-01",
+    "period_end": "2011-04-01",
     "monthly_long_short_return": -0.04686295623,
     "nav": 0.9965736914
    },
    {
-    "date": "2011-04-01",
+    "period_start": "2011-04-01",
+    "period_end": "2011-05-03",
     "monthly_long_short_return": -0.007600232081,
     "nav": 0.9889995001
    },
    {
-    "date": "2011-05-03",
+    "period_start": "2011-05-03",
+    "period_end": "2011-06-01",
     "monthly_long_short_return": 0.008562303548,
     "nav": 0.997467614
    },
    {
-    "date": "2011-06-01",
+    "period_start": "2011-06-01",
+    "period_end": "2011-07-01",
     "monthly_long_short_return": 0.004783709749,
     "nav": 1.00223921
    },
    {
-    "date": "2011-07-01",
+    "period_start": "2011-07-01",
+    "period_end": "2011-08-01",
     "monthly_long_short_return": 0.006876639686,
     "nav": 1.009131247
    },
    {
-    "date": "2011-08-01",
+    "period_start": "2011-08-01",
+    "period_end": "2011-09-01",
     "monthly_long_short_return": 0.03057163286,
     "nav": 1.039982037
    },
    {
-    "date": "2011-09-01",
+    "period_start": "2011-09-01",
+    "period_end": "2011-10-10",
     "monthly_long_short_return": 0.02125377223,
     "nav": 1.062085579
    },
    {
-    "date": "2011-10-10",
+    "period_start": "2011-10-10",
+    "period_end": "2011-11-01",
     "monthly_long_short_return": 0.01509882493,
     "nav": 1.078121823
    },
    {
-    "date": "2011-11-01",
+    "period_start": "2011-11-01",
+    "period_end": "2011-12-01",
     "monthly_long_short_return": 0.01825398241,
     "nav": 1.09780184
    },
    {
-    "date": "2011-12-01",
+    "period_start": "2011-12-01",
+    "period_end": "2012-01-04",
     "monthly_long_short_return": 0.02431901405,
     "nav": 1.124499298
    },
    {
-    "date": "2012-01-04",
+    "period_start": "2012-01-04",
+    "period_end": "2012-02-01",
     "monthly_long_short_return": -0.009360246433,
     "nav": 1.113973708
    },
    {
-    "date": "2012-02-01",
+    "period_start": "2012-02-01",
+    "period_end": "2012-03-01",
     "monthly_long_short_return": -0.01143863698,
     "nav": 1.101231367
    },
    {
-    "date": "2012-03-01",
+    "period_start": "2012-03-01",
+    "period_end": "2012-04-05",
     "monthly_long_short_return": 0.01523789777,
     "nav": 1.118011818
    },
    {
-    "date": "2012-04-05",
+    "period_start": "2012-04-05",
+    "period_end": "2012-05-02",
     "monthly_long_short_return": 0.0009025230938,
     "nav": 1.119020849
    },
    {
-    "date": "2012-05-02",
+    "period_start": "2012-05-02",
+    "period_end": "2012-06-01",
     "monthly_long_short_return": 0.0001153489292,
     "nav": 1.119149927
    },
    {
-    "date": "2012-06-01",
+    "period_start": "2012-06-01",
+    "period_end": "2012-07-02",
     "monthly_long_short_return": 0.03479866717,
     "nav": 1.158094853
    },
    {
-    "date": "2012-07-02",
+    "period_start": "2012-07-02",
+    "period_end": "2012-08-01",
     "monthly_long_short_return": 0.02275008974,
     "nav": 1.184441615
    },
    {
-    "date": "2012-08-01",
+    "period_start": "2012-08-01",
+    "period_end": "2012-09-03",
     "monthly_long_short_return": -0.001383582105,
     "nav": 1.182802843
    },
    {
-    "date": "2012-09-03",
+    "period_start": "2012-09-03",
+    "period_end": "2012-10-08",
     "monthly_long_short_return": 0.006724095293,
     "nav": 1.190756122
    },
    {
-    "date": "2012-10-08",
+    "period_start": "2012-10-08",
+    "period_end": "2012-11-01",
     "monthly_long_short_return": -0.01584835935,
     "nav": 1.171884591
    },
    {
-    "date": "2012-11-01",
+    "period_start": "2012-11-01",
+    "period_end": "2012-12-03",
     "monthly_long_short_return": -0.006999599151,
     "nav": 1.163681868
    },
    {
-    "date": "2012-12-03",
+    "period_start": "2012-12-03",
+    "period_end": "2013-01-04",
     "monthly_long_short_return": 0.02527435153,
     "nav": 1.193093173
    },
    {
-    "date": "2013-01-04",
+    "period_start": "2013-01-04",
+    "period_end": "2013-02-01",
     "monthly_long_short_return": 0.01066357064,
     "nav": 1.205815806
    },
    {
-    "date": "2013-02-01",
+    "period_start": "2013-02-01",
+    "period_end": "2013-03-01",
     "monthly_long_short_return": 0.01403982679,
     "nav": 1.222745251
    },
    {
-    "date": "2013-03-01",
+    "period_start": "2013-03-01",
+    "period_end": "2013-04-01",
     "monthly_long_short_return": 0.001003291016,
     "nav": 1.223972021
    },
    {
-    "date": "2013-04-01",
+    "period_start": "2013-04-01",
+    "period_end": "2013-05-02",
     "monthly_long_short_return": 0.01968137663,
     "nav": 1.248061475
    },
    {
-    "date": "2013-05-02",
+    "period_start": "2013-05-02",
+    "period_end": "2013-06-03",
     "monthly_long_short_return": 0.02466124433,
     "nav": 1.278840224
    },
    {
-    "date": "2013-06-03",
+    "period_start": "2013-06-03",
+    "period_end": "2013-07-01",
     "monthly_long_short_return": 0.02154534081,
     "nav": 1.306393272
    },
    {
-    "date": "2013-07-01",
+    "period_start": "2013-07-01",
+    "period_end": "2013-08-01",
     "monthly_long_short_return": 0.01831440664,
     "nav": 1.33031909
    },
    {
-    "date": "2013-08-01",
+    "period_start": "2013-08-01",
+    "period_end": "2013-09-02",
     "monthly_long_short_return": -0.02386124963,
     "nav": 1.298576014
    },
    {
-    "date": "2013-09-02",
+    "period_start": "2013-09-02",
+    "period_end": "2013-10-08",
     "monthly_long_short_return": -0.003771086035,
     "nav": 1.293678972
    },
    {
-    "date": "2013-10-08",
+    "period_start": "2013-10-08",
+    "period_end": "2013-11-01",
     "monthly_long_short_return": 0.007345301686,
     "nav": 1.303181435
    },
    {
-    "date": "2013-11-01",
+    "period_start": "2013-11-01",
+    "period_end": "2013-12-02",
     "monthly_long_short_return": 0.01208480025,
     "nav": 1.318930122
    },
    {
-    "date": "2013-12-02",
+    "period_start": "2013-12-02",
+    "period_end": "2014-01-02",
     "monthly_long_short_return": 0.02138085873,
     "nav": 1.347129981
    },
    {
-    "date": "2014-01-02",
+    "period_start": "2014-01-02",
+    "period_end": "2014-02-07",
     "monthly_long_short_return": 0.018783043,
     "nav": 1.372433181
    },
    {
-    "date": "2014-02-07",
+    "period_start": "2014-02-07",
+    "period_end": "2014-03-03",
     "monthly_long_short_return": -0.00780787386,
     "nav": 1.361717396
    },
    {
-    "date": "2014-03-03",
+    "period_start": "2014-03-03",
+    "period_end": "2014-04-01",
     "monthly_long_short_return": -0.007398823336,
     "nav": 1.351642289
    },
    {
-    "date": "2014-04-01",
+    "period_start": "2014-04-01",
+    "period_end": "2014-05-05",
     "monthly_long_short_return": 0.02833455483,
     "nav": 1.389940472
    },
    {
-    "date": "2014-05-05",
+    "period_start": "2014-05-05",
+    "period_end": "2014-06-03",
     "monthly_long_short_return": 0.001834990258,
     "nav": 1.392490999
    },
    {
-    "date": "2014-06-03",
+    "period_start": "2014-06-03",
+    "period_end": "2014-07-01",
     "monthly_long_short_return": 0.01210881831,
     "nav": 1.40935242
    },
    {
-    "date": "2014-07-01",
+    "period_start": "2014-07-01",
+    "period_end": "2014-08-01",
     "monthly_long_short_return": 0.001386699951,
     "nav": 1.411306769
    },
    {
-    "date": "2014-08-01",
+    "period_start": "2014-08-01",
+    "period_end": "2014-09-01",
     "monthly_long_short_return": -0.003838251548,
     "nav": 1.405889818
    },
    {
-    "date": "2014-09-01",
+    "period_start": "2014-09-01",
+    "period_end": "2014-10-08",
     "monthly_long_short_return": -0.01721514581,
     "nav": 1.38168722
    },
    {
-    "date": "2014-10-08",
+    "period_start": "2014-10-08",
+    "period_end": "2014-11-03",
     "monthly_long_short_return": -0.01080486022,
     "nav": 1.366758283
    },
    {
-    "date": "2014-11-03",
+    "period_start": "2014-11-03",
+    "period_end": "2014-12-01",
     "monthly_long_short_return": -0.04040157576,
     "nav": 1.311539094
    },
    {
-    "date": "2014-12-01",
+    "period_start": "2014-12-01",
+    "period_end": "2015-01-05",
     "monthly_long_short_return": -0.04382069425,
     "nav": 1.254066541
    },
    {
-    "date": "2015-01-05",
+    "period_start": "2015-01-05",
+    "period_end": "2015-02-02",
     "monthly_long_short_return": 0.03875383278,
     "nav": 1.302666426
    },
    {
-    "date": "2015-02-02",
+    "period_start": "2015-02-02",
+    "period_end": "2015-03-02",
     "monthly_long_short_return": -0.00535230401,
     "nav": 1.295694159
    },
    {
-    "date": "2015-03-02",
+    "period_start": "2015-03-02",
+    "period_end": "2015-04-01",
     "monthly_long_short_return": -0.00277331384,
     "nav": 1.292100792
    },
    {
-    "date": "2015-04-01",
+    "period_start": "2015-04-01",
+    "period_end": "2015-05-04",
     "monthly_long_short_return": -0.05544779833,
     "nav": 1.220456648
    },
    {
-    "date": "2015-05-04",
+    "period_start": "2015-05-04",
+    "period_end": "2015-06-01",
     "monthly_long_short_return": 0.07050208778,
     "nav": 1.30650139
    },
    {
-    "date": "2015-06-01",
+    "period_start": "2015-06-01",
+    "period_end": "2015-07-01",
     "monthly_long_short_return": -0.0008337941895,
     "nav": 1.305412037
    },
    {
-    "date": "2015-07-01",
+    "period_start": "2015-07-01",
+    "period_end": "2015-08-03",
     "monthly_long_short_return": 0.07659277647,
     "nav": 1.405397169
    },
    {
-    "date": "2015-08-03",
+    "period_start": "2015-08-03",
+    "period_end": "2015-09-01",
     "monthly_long_short_return": -0.001719737925,
     "nav": 1.402980254
    },
    {
-    "date": "2015-09-01",
+    "period_start": "2015-09-01",
+    "period_end": "2015-10-08",
     "monthly_long_short_return": 0.05585725436,
     "nav": 1.481346879
    },
    {
-    "date": "2015-10-08",
+    "period_start": "2015-10-08",
+    "period_end": "2015-11-02",
     "monthly_long_short_return": -0.0273452884,
     "nav": 1.440839022
    },
    {
-    "date": "2015-11-02",
+    "period_start": "2015-11-02",
+    "period_end": "2015-12-01",
     "monthly_long_short_return": -0.0384439401,
     "nav": 1.385447493
    },
    {
-    "date": "2015-12-01",
+    "period_start": "2015-12-01",
+    "period_end": "2016-01-04",
     "monthly_long_short_return": 0.02352244338,
     "nav": 1.418036603
    },
    {
-    "date": "2016-01-04",
+    "period_start": "2016-01-04",
+    "period_end": "2016-02-01",
     "monthly_long_short_return": 0.01889296847,
     "nav": 1.444827524
    },
    {
-    "date": "2016-02-01",
+    "period_start": "2016-02-01",
+    "period_end": "2016-03-01",
     "monthly_long_short_return": -0.006474210176,
     "nav": 1.435473406
    },
    {
-    "date": "2016-03-01",
+    "period_start": "2016-03-01",
+    "period_end": "2016-04-01",
     "monthly_long_short_return": 0.03263093019,
     "nav": 1.482314239
    },
    {
-    "date": "2016-04-01",
+    "period_start": "2016-04-01",
+    "period_end": "2016-05-03",
     "monthly_long_short_return": 0.005790686887,
     "nav": 1.490897857
    },
    {
-    "date": "2016-05-03",
+    "period_start": "2016-05-03",
+    "period_end": "2016-06-01",
     "monthly_long_short_return": 0.01533953414,
     "nav": 1.513767535
    },
    {
-    "date": "2016-06-01",
+    "period_start": "2016-06-01",
+    "period_end": "2016-07-01",
     "monthly_long_short_return": 0.03909840858,
     "nav": 1.572953437
    },
    {
-    "date": "2016-07-01",
+    "period_start": "2016-07-01",
+    "period_end": "2016-08-01",
     "monthly_long_short_return": -0.001674928039,
     "nav": 1.570318853
    },
    {
-    "date": "2016-08-01",
+    "period_start": "2016-08-01",
+    "period_end": "2016-09-01",
     "monthly_long_short_return": -0.002562222231,
     "nav": 1.566295347
    },
    {
-    "date": "2016-09-01",
+    "period_start": "2016-09-01",
+    "period_end": "2016-10-10",
     "monthly_long_short_return": 0.0008988799986,
     "nav": 1.567703259
    },
    {
-    "date": "2016-10-10",
+    "period_start": "2016-10-10",
+    "period_end": "2016-11-01",
     "monthly_long_short_return": -0.0151725483,
     "nav": 1.543917205
    },
    {
-    "date": "2016-11-01",
+    "period_start": "2016-11-01",
+    "period_end": "2016-12-01",
     "monthly_long_short_return": -0.02055127365,
     "nav": 1.51218774
    },
    {
-    "date": "2016-12-01",
+    "period_start": "2016-12-01",
+    "period_end": "2017-01-03",
     "monthly_long_short_return": -0.01185993353,
     "nav": 1.494253294
    },
    {
-    "date": "2017-01-03",
+    "period_start": "2017-01-03",
+    "period_end": "2017-02-03",
     "monthly_long_short_return": -0.006342803409,
     "nav": 1.484775539
    },
    {
-    "date": "2017-02-03",
+    "period_start": "2017-02-03",
+    "period_end": "2017-03-01",
     "monthly_long_short_return": -0.0006662237971,
     "nav": 1.483786346
    },
    {
-    "date": "2017-03-01",
+    "period_start": "2017-03-01",
+    "period_end": "2017-04-05",
     "monthly_long_short_return": 0.02915231868,
     "nav": 1.527042159
    },
    {
-    "date": "2017-04-05",
+    "period_start": "2017-04-05",
+    "period_end": "2017-05-02",
     "monthly_long_short_return": 0.04180217187,
     "nav": 1.590875838
    },
    {
-    "date": "2017-05-02",
+    "period_start": "2017-05-02",
+    "period_end": "2017-06-01",
     "monthly_long_short_return": 0.005137757718,
     "nav": 1.599049372
    },
    {
-    "date": "2017-06-01",
+    "period_start": "2017-06-01",
+    "period_end": "2017-07-03",
     "monthly_long_short_return": 0.01556641051,
     "nav": 1.623940831
    },
    {
-    "date": "2017-07-03",
+    "period_start": "2017-07-03",
+    "period_end": "2017-08-01",
     "monthly_long_short_return": -0.009856514951,
     "nav": 1.607934434
    },
    {
-    "date": "2017-08-01",
+    "period_start": "2017-08-01",
+    "period_end": "2017-09-01",
     "monthly_long_short_return": -0.001785184076,
     "nav": 1.605063975
    },
    {
-    "date": "2017-09-01",
+    "period_start": "2017-09-01",
+    "period_end": "2017-10-09",
     "monthly_long_short_return": -0.004881296155,
     "nav": 1.597229183
    },
    {
-    "date": "2017-10-09",
+    "period_start": "2017-10-09",
+    "period_end": "2017-11-01",
     "monthly_long_short_return": 0.01410787877,
     "nav": 1.619762698
    },
    {
-    "date": "2017-11-01",
+    "period_start": "2017-11-01",
+    "period_end": "2017-12-01",
     "monthly_long_short_return": -0.0004230636684,
     "nav": 1.619077436
    },
    {
-    "date": "2017-12-01",
+    "period_start": "2017-12-01",
+    "period_end": "2018-01-02",
     "monthly_long_short_return": 0.01169735054,
     "nav": 1.638016352
    },
    {
-    "date": "2018-01-02",
+    "period_start": "2018-01-02",
+    "period_end": "2018-02-01",
     "monthly_long_short_return": 0.01344782215,
     "nav": 1.660044104
    },
    {
-    "date": "2018-02-01",
+    "period_start": "2018-02-01",
+    "period_end": "2018-03-01",
     "monthly_long_short_return": 0.02812726604,
     "nav": 1.706736607
    },
    {
-    "date": "2018-03-01",
+    "period_start": "2018-03-01",
+    "period_end": "2018-04-02",
     "monthly_long_short_return": 0.0122927171,
     "nav": 1.727717037
    },
    {
-    "date": "2018-04-02",
+    "period_start": "2018-04-02",
+    "period_end": "2018-05-02",
     "monthly_long_short_return": -0.009653026734,
     "nav": 1.711039338
    },
    {
-    "date": "2018-05-02",
+    "period_start": "2018-05-02",
+    "period_end": "2018-06-01",
     "monthly_long_short_return": 0.0186206959,
     "nav": 1.742900081
    },
    {
-    "date": "2018-06-01",
+    "period_start": "2018-06-01",
+    "period_end": "2018-07-02",
     "monthly_long_short_return": 0.01698896046,
     "nav": 1.772510142
    },
    {
-    "date": "2018-07-02",
+    "period_start": "2018-07-02",
+    "period_end": "2018-08-01",
     "monthly_long_short_return": -0.02112936073,
     "nav": 1.735058136
    },
    {
-    "date": "2018-08-01",
+    "period_start": "2018-08-01",
+    "period_end": "2018-09-03",
     "monthly_long_short_return": -0.01480672672,
     "nav": 1.709367604
    },
    {
-    "date": "2018-09-03",
+    "period_start": "2018-09-03",
+    "period_end": "2018-10-08",
     "monthly_long_short_return": -0.01852143944,
     "nav": 1.677707655
    },
    {
-    "date": "2018-10-08",
+    "period_start": "2018-10-08",
+    "period_end": "2018-11-01",
     "monthly_long_short_return": -0.005689515443,
     "nav": 1.668162312
    },
    {
-    "date": "2018-11-01",
+    "period_start": "2018-11-01",
+    "period_end": "2018-12-03",
     "monthly_long_short_return": -0.01822581282,
     "nav": 1.637758698
    },
    {
-    "date": "2018-12-03",
+    "period_start": "2018-12-03",
+    "period_end": "2019-01-02",
     "monthly_long_short_return": -0.005219428565,
     "nav": 1.629210533
    },
    {
-    "date": "2019-01-02",
+    "period_start": "2019-01-02",
+    "period_end": "2019-02-01",
     "monthly_long_short_return": 0.01946979409,
     "nav": 1.660930927
    },
    {
-    "date": "2019-02-01",
+    "period_start": "2019-02-01",
+    "period_end": "2019-03-01",
     "monthly_long_short_return": -0.02689936388,
     "nav": 1.616252941
    },
    {
-    "date": "2019-03-01",
+    "period_start": "2019-03-01",
+    "period_end": "2019-04-01",
     "monthly_long_short_return": 0.0008630402438,
     "nav": 1.617647833
    },
    {
-    "date": "2019-04-01",
+    "period_start": "2019-04-01",
+    "period_end": "2019-05-06",
     "monthly_long_short_return": 0.001578175771,
     "nav": 1.620200765
    },
    {
-    "date": "2019-05-06",
+    "period_start": "2019-05-06",
+    "period_end": "2019-06-03",
     "monthly_long_short_return": -0.005786825923,
     "nav": 1.610824946
    },
    {
-    "date": "2019-06-03",
+    "period_start": "2019-06-03",
+    "period_end": "2019-07-01",
     "monthly_long_short_return": 0.02233504786,
     "nav": 1.646802798
    },
    {
-    "date": "2019-07-01",
+    "period_start": "2019-07-01",
+    "period_end": "2019-08-01",
     "monthly_long_short_return": 0.0008544402095,
     "nav": 1.648209892
    },
    {
-    "date": "2019-08-01",
+    "period_start": "2019-08-01",
+    "period_end": "2019-09-02",
     "monthly_long_short_return": 0.01399314921,
     "nav": 1.671273539
    },
    {
-    "date": "2019-09-02",
+    "period_start": "2019-09-02",
+    "period_end": "2019-10-08",
     "monthly_long_short_return": 0.01318167077,
     "nav": 1.693303717
    },
    {
-    "date": "2019-10-08",
+    "period_start": "2019-10-08",
+    "period_end": "2019-11-01",
     "monthly_long_short_return": 0.002527237373,
     "nav": 1.697583097
    },
    {
-    "date": "2019-11-01",
+    "period_start": "2019-11-01",
+    "period_end": "2019-12-02",
     "monthly_long_short_return": 0.0006667718614,
     "nav": 1.698714998
    },
    {
-    "date": "2019-12-02",
+    "period_start": "2019-12-02",
+    "period_end": "2020-01-02",
     "monthly_long_short_return": 0.0215119715,
     "nav": 1.735257707
    },
    {
-    "date": "2020-01-02",
+    "period_start": "2020-01-02",
+    "period_end": "2020-02-03",
     "monthly_long_short_return": 0.0204203698,
     "nav": 1.770692311
    },
    {
-    "date": "2020-02-03",
+    "period_start": "2020-02-03",
+    "period_end": "2020-03-02",
     "monthly_long_short_return": 0.0266148182,
     "nav": 1.817818965
    },
    {
-    "date": "2020-03-02",
+    "period_start": "2020-03-02",
+    "period_end": "2020-04-01",
     "monthly_long_short_return": -0.01094070254,
     "nav": 1.797930748
    },
    {
-    "date": "2020-04-01",
+    "period_start": "2020-04-01",
+    "period_end": "2020-05-06",
     "monthly_long_short_return": 0.03932327836,
     "nav": 1.868631279
    },
    {
-    "date": "2020-05-06",
+    "period_start": "2020-05-06",
+    "period_end": "2020-06-01",
     "monthly_long_short_return": 0.007571733773,
     "nav": 1.882780058
    },
    {
-    "date": "2020-06-01",
+    "period_start": "2020-06-01",
+    "period_end": "2020-07-01",
     "monthly_long_short_return": 0.03976272263,
     "nav": 1.957644519
    },
    {
-    "date": "2020-07-01",
+    "period_start": "2020-07-01",
+    "period_end": "2020-08-03",
     "monthly_long_short_return": -0.02318896995,
     "nav": 1.912248759
    },
    {
-    "date": "2020-08-03",
+    "period_start": "2020-08-03",
+    "period_end": "2020-09-01",
     "monthly_long_short_return": 0.01943842141,
     "nav": 1.949419856
    },
    {
-    "date": "2020-09-01",
+    "period_start": "2020-09-01",
+    "period_end": "2020-10-09",
     "monthly_long_short_return": -0.008734450983,
     "nav": 1.932392744
    },
    {
-    "date": "2020-10-09",
+    "period_start": "2020-10-09",
+    "period_end": "2020-11-02",
     "monthly_long_short_return": 0.006240935786,
     "nav": 1.944452683
    },
    {
-    "date": "2020-11-02",
+    "period_start": "2020-11-02",
+    "period_end": "2020-12-01",
     "monthly_long_short_return": -0.0299467047,
     "nav": 1.886222733
    },
    {
-    "date": "2020-12-01",
+    "period_start": "2020-12-01",
+    "period_end": "2021-01-04",
     "monthly_long_short_return": -0.001236936293,
     "nav": 1.883889596
    },
    {
-    "date": "2021-01-04",
+    "period_start": "2021-01-04",
+    "period_end": "2021-02-01",
     "monthly_long_short_return": 0.03458711621,
     "nav": 1.949047904
    },
    {
-    "date": "2021-02-01",
+    "period_start": "2021-02-01",
+    "period_end": "2021-03-01",
     "monthly_long_short_return": -0.003904346667,
     "nav": 1.941438145
    },
    {
-    "date": "2021-03-01",
+    "period_start": "2021-03-01",
+    "period_end": "2021-04-01",
     "monthly_long_short_return": -0.01519821789,
     "nav": 1.911931745
    },
    {
-    "date": "2021-04-01",
+    "period_start": "2021-04-01",
+    "period_end": "2021-05-06",
     "monthly_long_short_return": 0.003006117528,
     "nav": 1.917679237
    },
    {
-    "date": "2021-05-06",
+    "period_start": "2021-05-06",
+    "period_end": "2021-06-01",
     "monthly_long_short_return": -0.02445272715,
     "nav": 1.87078675
    },
    {
-    "date": "2021-06-01",
+    "period_start": "2021-06-01",
+    "period_end": "2021-07-01",
     "monthly_long_short_return": -0.004452151441,
     "nav": 1.862457724
    },
    {
-    "date": "2021-07-01",
+    "period_start": "2021-07-01",
+    "period_end": "2021-08-02",
     "monthly_long_short_return": -0.009140772608,
     "nav": 1.845433421
    },
    {
-    "date": "2021-08-02",
+    "period_start": "2021-08-02",
+    "period_end": "2021-09-01",
     "monthly_long_short_return": -0.007931520295,
     "nav": 1.830796329
    },
    {
-    "date": "2021-09-01",
+    "period_start": "2021-09-01",
+    "period_end": "2021-10-08",
     "monthly_long_short_return": 0.01089625735,
     "nav": 1.850745157
    },
    {
-    "date": "2021-10-08",
+    "period_start": "2021-10-08",
+    "period_end": "2021-11-01",
     "monthly_long_short_return": 0.0106620843,
     "nav": 1.870477958
    },
    {
-    "date": "2021-11-01",
+    "period_start": "2021-11-01",
+    "period_end": "2021-12-01",
     "monthly_long_short_return": 0.02502088025,
     "nav": 1.917278963
    },
    {
-    "date": "2021-12-01",
+    "period_start": "2021-12-01",
+    "period_end": "2022-01-04",
     "monthly_long_short_return": -0.009942642336,
     "nav": 1.898216144
    },
    {
-    "date": "2022-01-04",
+    "period_start": "2022-01-04",
+    "period_end": "2022-02-07",
     "monthly_long_short_return": 0.0004844679767,
     "nav": 1.899135768
    },
    {
-    "date": "2022-02-07",
+    "period_start": "2022-02-07",
+    "period_end": "2022-03-01",
     "monthly_long_short_return": -0.01291155574,
     "nav": 1.874614971
    },
    {
-    "date": "2022-03-01",
+    "period_start": "2022-03-01",
+    "period_end": "2022-04-01",
     "monthly_long_short_return": -0.02113743761,
     "nav": 1.834990414
    },
    {
-    "date": "2022-04-01",
+    "period_start": "2022-04-01",
+    "period_end": "2022-05-05",
     "monthly_long_short_return": 0.03025503287,
     "nav": 1.890508109
    },
    {
-    "date": "2022-05-05",
+    "period_start": "2022-05-05",
+    "period_end": "2022-06-01",
     "monthly_long_short_return": -0.0005372732227,
     "nav": 1.88949239
    },
    {
-    "date": "2022-06-01",
+    "period_start": "2022-06-01",
+    "period_end": "2022-07-01",
     "monthly_long_short_return": 0.01465492914,
     "nav": 1.917182767
    },
    {
-    "date": "2022-07-01",
+    "period_start": "2022-07-01",
+    "period_end": "2022-08-01",
     "monthly_long_short_return": -0.01912453868,
     "nav": 1.880517531
    },
    {
-    "date": "2022-08-01",
+    "period_start": "2022-08-01",
+    "period_end": "2022-09-01",
     "monthly_long_short_return": 0.005294362088,
     "nav": 1.890473672
    },
    {
-    "date": "2022-09-01",
+    "period_start": "2022-09-01",
+    "period_end": "2022-10-10",
     "monthly_long_short_return": 0.002691710262,
     "nav": 1.895562279
    },
    {
-    "date": "2022-10-10",
+    "period_start": "2022-10-10",
+    "period_end": "2022-11-01",
     "monthly_long_short_return": 0.01234146951,
     "nav": 1.918956303
    },
    {
-    "date": "2022-11-01",
+    "period_start": "2022-11-01",
+    "period_end": "2022-12-01",
     "monthly_long_short_return": -0.02477163274,
     "nav": 1.871420623
    },
    {
-    "date": "2022-12-01",
+    "period_start": "2022-12-01",
+    "period_end": "2023-01-03",
     "monthly_long_short_return": -0.0002598381375,
     "nav": 1.870934356
    },
    {
-    "date": "2023-01-03",
+    "period_start": "2023-01-03",
+    "period_end": "2023-02-01",
     "monthly_long_short_return": 0.0366592324,
     "nav": 1.939521373
    },
    {
-    "date": "2023-02-01",
+    "period_start": "2023-02-01",
+    "period_end": "2023-03-01",
     "monthly_long_short_return": 0.009364001386,
     "nav": 1.957683054
    },
    {
-    "date": "2023-03-01",
+    "period_start": "2023-03-01",
+    "period_end": "2023-04-03",
     "monthly_long_short_return": 0.002802750084,
     "nav": 1.963169951
    },
    {
-    "date": "2023-04-03",
+    "period_start": "2023-04-03",
+    "period_end": "2023-05-04",
     "monthly_long_short_return": 0.01169617676,
     "nav": 1.986131533
    },
    {
-    "date": "2023-05-04",
+    "period_start": "2023-05-04",
+    "period_end": "2023-06-01",
     "monthly_long_short_return": 0.001745380781,
     "nav": 1.989598089
    },
    {
-    "date": "2023-06-01",
+    "period_start": "2023-06-01",
+    "period_end": "2023-07-03",
     "monthly_long_short_return": 0.01138089628,
     "nav": 2.012241499
    },
    {
-    "date": "2023-07-03",
+    "period_start": "2023-07-03",
+    "period_end": "2023-08-01",
     "monthly_long_short_return": -0.02745533268,
     "nav": 1.956994739
    },
    {
-    "date": "2023-08-01",
+    "period_start": "2023-08-01",
+    "period_end": "2023-09-01",
     "monthly_long_short_return": 0.008409505681,
     "nav": 1.973452097
    },
    {
-    "date": "2023-09-01",
+    "period_start": "2023-09-01",
+    "period_end": "2023-10-09",
     "monthly_long_short_return": -0.01122772087,
     "nav": 1.951294728
    },
    {
-    "date": "2023-10-09",
+    "period_start": "2023-10-09",
+    "period_end": "2023-11-01",
     "monthly_long_short_return": -0.04334199245,
     "nav": 1.866721727
    },
    {
-    "date": "2023-11-01",
+    "period_start": "2023-11-01",
+    "period_end": "2023-12-01",
     "monthly_long_short_return": 0.01041972986,
     "nav": 1.886172463
    },
    {
-    "date": "2023-12-01",
+    "period_start": "2023-12-01",
+    "period_end": "2024-01-02",
     "monthly_long_short_return": 0.01782298324,
     "nav": 1.919789683
    },
    {
-    "date": "2024-01-02",
+    "period_start": "2024-01-02",
+    "period_end": "2024-02-01",
     "monthly_long_short_return": 0.008000457579,
     "nav": 1.935148879
    },
    {
-    "date": "2024-02-01",
+    "period_start": "2024-02-01",
+    "period_end": "2024-03-01",
     "monthly_long_short_return": 0.04266665296,
     "nav": 2.017715204
    },
    {
-    "date": "2024-03-01",
+    "period_start": "2024-03-01",
+    "period_end": "2024-04-01",
     "monthly_long_short_return": -0.002975230795,
     "nav": 2.011712036
    },
    {
-    "date": "2024-04-01",
+    "period_start": "2024-04-01",
+    "period_end": "2024-05-06",
     "monthly_long_short_return": 0.04439002839,
     "nav": 2.10101199
    },
    {
-    "date": "2024-05-06",
+    "period_start": "2024-05-06",
+    "period_end": "2024-06-03",
     "monthly_long_short_return": 0.02223531101,
     "nav": 2.147728646
    },
    {
-    "date": "2024-06-03",
+    "period_start": "2024-06-03",
+    "period_end": "2024-07-01",
     "monthly_long_short_return": 0.02874751403,
     "nav": 2.209470505
    },
    {
-    "date": "2024-07-01",
+    "period_start": "2024-07-01",
+    "period_end": "2024-08-01",
     "monthly_long_short_return": -0.03404992988,
     "nav": 2.134238189
    },
    {
-    "date": "2024-08-01",
+    "period_start": "2024-08-01",
+    "period_end": "2024-09-02",
     "monthly_long_short_return": -0.01611250542,
     "nav": 2.099850265
    },
    {
-    "date": "2024-09-02",
+    "period_start": "2024-09-02",
+    "period_end": "2024-10-08",
     "monthly_long_short_return": -0.035731064,
     "nav": 2.024820381
    },
    {
-    "date": "2024-10-08",
+    "period_start": "2024-10-08",
+    "period_end": "2024-11-01",
     "monthly_long_short_return": -0.07473306522,
     "nav": 1.873499347
    },
    {
-    "date": "2024-11-01",
+    "period_start": "2024-11-01",
+    "period_end": "2024-12-02",
     "monthly_long_short_return": 0.006603866565,
     "nav": 1.885871687
    },
    {
-    "date": "2024-12-02",
+    "period_start": "2024-12-02",
+    "period_end": "2025-01-02",
     "monthly_long_short_return": 0.04317869379,
     "nav": 1.967301163
    },
    {
-    "date": "2025-01-02",
+    "period_start": "2025-01-02",
+    "period_end": "2025-02-05",
     "monthly_long_short_return": 0.02862116556,
     "nav": 2.023607615
    },
    {
-    "date": "2025-02-05",
+    "period_start": "2025-02-05",
+    "period_end": "2025-03-03",
     "monthly_long_short_return": -0.03692463999,
     "nav": 1.948886632
    },
    {
-    "date": "2025-03-03",
+    "period_start": "2025-03-03",
+    "period_end": "2025-04-01",
     "monthly_long_short_return": 0.03015451011,
     "nav": 2.007654354
    },
    {
-    "date": "2025-04-01",
+    "period_start": "2025-04-01",
+    "period_end": "2025-05-06",
     "monthly_long_short_return": -0.0011299149,
     "nav": 2.005385875
    },
    {
-    "date": "2025-05-06",
+    "period_start": "2025-05-06",
+    "period_end": "2025-06-03",
     "monthly_long_short_return": -0.02111791976,
     "nav": 1.963036297
    },
    {
-    "date": "2025-06-03",
+    "period_start": "2025-06-03",
+    "period_end": "2025-07-01",
     "monthly_long_short_return": -0.01040748315,
     "nav": 1.94260603
    },
    {
-    "date": "2025-07-01",
+    "period_start": "2025-07-01",
+    "period_end": "2025-08-01",
     "monthly_long_short_return": 0.006558762151,
     "nav": 1.955347121
    },
    {
-    "date": "2025-08-01",
+    "period_start": "2025-08-01",
+    "period_end": "2025-09-01",
     "monthly_long_short_return": -0.0001276831467,
     "nav": 1.955097456
    },
    {
-    "date": "2025-09-01",
+    "period_start": "2025-09-01",
+    "period_end": "2025-10-09",
     "monthly_long_short_return": 0.03353210299,
     "nav": 2.020655986
    },
    {
-    "date": "2025-10-09",
+    "period_start": "2025-10-09",
+    "period_end": "2025-11-03",
     "monthly_long_short_return": -0.001583607783,
     "nav": 2.017456059
    },
    {
-    "date": "2025-11-03",
+    "period_start": "2025-11-03",
+    "period_end": "2025-12-01",
     "monthly_long_short_return": -0.01797987806,
     "nav": 1.981182445
    },
    {
-    "date": "2025-12-01",
+    "period_start": "2025-12-01",
+    "period_end": "2026-01-05",
     "monthly_long_short_return": 0.0323989884,
     "nav": 2.045370752
    },
    {
-    "date": "2026-01-05",
+    "period_start": "2026-01-05",
+    "period_end": "2026-02-02",
     "monthly_long_short_return": 0.02561656108,
     "nav": 2.097766117
    },
    {
-    "date": "2026-02-02",
+    "period_start": "2026-02-02",
+    "period_end": "2026-03-02",
     "monthly_long_short_return": 0.004541280435,
     "nav": 2.107292661
    },
    {
-    "date": "2026-03-02",
+    "period_start": "2026-03-02",
+    "period_end": "2026-04-01",
     "monthly_long_short_return": -0.0009272634528,
     "nav": 2.105338646
    },
    {
-    "date": "2026-04-01",
+    "period_start": "2026-04-01",
+    "period_end": "2026-05-06",
     "monthly_long_short_return": -0.009430452863,
     "nav": 2.085484349
    },
    {
-    "date": "2026-05-06",
+    "period_start": "2026-05-06",
+    "period_end": "2026-06-01",
     "monthly_long_short_return": 0.01221026734,
     "nav": 2.11094867
    },
    {
-    "date": "2026-06-01",
+    "period_start": "2026-06-01",
+    "period_end": "2026-07-01",
     "monthly_long_short_return": -0.01643964356,
     "nav": 2.076245427
    },
    {
-    "date": "2026-07-01",
+    "period_start": "2026-07-01",
+    "period_end": "2026-08-03",
     "monthly_long_short_return": 0.05312222194,
     "nav": 2.186540197
    }
@@ -6497,6 +6696,10 @@
    {
     "file": "decile_returns.parquet",
     "sha256": "22bc5446ac760c7dbce61f873d2c236898f57135ebc9a0e4bf0e49340962bb05"
+   },
+   {
+    "file": "forward_returns.parquet",
+    "sha256": "d682a5b57a9ad2e1b8de40a4769844f0d11570a72ad44f814bd8b46f6ef2fdfb"
    },
    {
     "file": "factor_panel_processed_market_ex_bje.parquet",
