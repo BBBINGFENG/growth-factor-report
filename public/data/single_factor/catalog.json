@@ -226,5 +226,77 @@
   "accounting_basis": "balance_sheet_stock",
   "published": true,
   "data_file": "factors/19_total_assets_rank_growth_acceleration.json"
+ },
+ {
+  "id": "20",
+  "key": "net_income_attributable_growth_time_series_percentile",
+  "name_cn": "净利润同比增速时序分位点",
+  "name_en": "Net Income YoY Growth Time-Series Percentile",
+  "research_theme": "growth_momentum",
+  "method_family": "time_series_quantile",
+  "source_type": "paper_core",
+  "accounting_basis": "single_quarter",
+  "published": true,
+  "data_file": "factors/20_net_income_attributable_growth_time_series_percentile.json"
+ },
+ {
+  "id": "21",
+  "key": "revenue_growth_time_series_percentile",
+  "name_cn": "营业收入同比增速时序分位点",
+  "name_en": "Revenue YoY Growth Time-Series Percentile",
+  "research_theme": "growth_momentum",
+  "method_family": "time_series_quantile",
+  "source_type": "paper_core",
+  "accounting_basis": "single_quarter",
+  "published": true,
+  "data_file": "factors/21_revenue_growth_time_series_percentile.json"
+ },
+ {
+  "id": "22",
+  "key": "total_assets_growth_time_series_percentile",
+  "name_cn": "总资产同比增速时序分位点",
+  "name_en": "Total Assets YoY Growth Time-Series Percentile",
+  "research_theme": "growth_momentum",
+  "method_family": "time_series_quantile",
+  "source_type": "paper_core",
+  "accounting_basis": "balance_sheet_stock",
+  "published": true,
+  "data_file": "factors/22_total_assets_growth_time_series_percentile.json"
+ },
+ {
+  "id": "23",
+  "key": "net_income_attributable_growth_time_series_slope",
+  "name_cn": "净利润同比增速时序回归系数",
+  "name_en": "Net Income YoY Growth Time-Series Regression Coefficient",
+  "research_theme": "growth_momentum",
+  "method_family": "time_series_regression_coefficient",
+  "source_type": "paper_core",
+  "accounting_basis": "single_quarter",
+  "published": true,
+  "data_file": "factors/23_net_income_attributable_growth_time_series_slope.json"
+ },
+ {
+  "id": "24",
+  "key": "revenue_growth_time_series_slope",
+  "name_cn": "营业收入同比增速时序回归系数",
+  "name_en": "Revenue YoY Growth Time-Series Regression Coefficient",
+  "research_theme": "growth_momentum",
+  "method_family": "time_series_regression_coefficient",
+  "source_type": "paper_core",
+  "accounting_basis": "single_quarter",
+  "published": true,
+  "data_file": "factors/24_revenue_growth_time_series_slope.json"
+ },
+ {
+  "id": "25",
+  "key": "total_assets_growth_time_series_slope",
+  "name_cn": "总资产同比增速时序回归系数",
+  "name_en": "Total Assets YoY Growth Time-Series Regression Coefficient",
+  "research_theme": "growth_momentum",
+  "method_family": "time_series_regression_coefficient",
+  "source_type": "paper_core",
+  "accounting_basis": "balance_sheet_stock",
+  "published": true,
+  "data_file": "factors/25_total_assets_growth_time_series_slope.json"
  }
 ]

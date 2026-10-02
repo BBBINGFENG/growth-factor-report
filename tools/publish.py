@@ -54,6 +54,12 @@ FACTORS = {
     "17": {"name_en": "Net Income Rank Growth Acceleration (TTM)", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "rank_growth_acceleration"},
     "18": {"name_en": "Revenue Rank Growth Acceleration (TTM)", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "rank_growth_acceleration"},
     "19": {"name_en": "Total Assets Rank Growth Acceleration", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "rank_growth_acceleration"},
+    "20": {"name_en": "Net Income YoY Growth Time-Series Percentile", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_quantile"},
+    "21": {"name_en": "Revenue YoY Growth Time-Series Percentile", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_quantile"},
+    "22": {"name_en": "Total Assets YoY Growth Time-Series Percentile", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_quantile"},
+    "23": {"name_en": "Net Income YoY Growth Time-Series Regression Coefficient", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_regression_coefficient"},
+    "24": {"name_en": "Revenue YoY Growth Time-Series Regression Coefficient", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_regression_coefficient"},
+    "25": {"name_en": "Total Assets YoY Growth Time-Series Regression Coefficient", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_regression_coefficient"},
 }
 METHOD_FAMILY = {
     "growth_rate": "growth_rate",

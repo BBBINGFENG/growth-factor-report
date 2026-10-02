@@ -70,7 +70,7 @@ website/
 每个因子至少包含以下分类字段：
 
 - `research_theme`：`traditional_growth`、`growth_path`、`growth_momentum`、`forward_growth`、`earnings_surprise`、`growth_valuation`、`multidimensional_growth`、`low_base`。
-- `method_family`：例如`growth_rate`、`displacement_path_ratio`、`upward_count_ratio`、`time_series_quantile`、`analyst_revision`。
+- `method_family`：例如`growth_rate`、`displacement_path_ratio`、`upward_count_ratio`、`time_series_quantile`、`time_series_regression_coefficient`、`analyst_revision`。
 - `source_type`：`paper_core`、`cross_report`、`external_literature`、`project_extension`。
 - `accounting_basis`：`single_quarter`、`TTM`、`balance_sheet_stock`、`event_based`、`not_applicable`。
 - `published`：只表示是否已有可在网站展示的冻结结果，不是审批状态。
@@ -128,6 +128,12 @@ Composite 不占用 Factor 01、02…的连续单因子编号，改用`Composite
 | 17 | 净利润Rank成长加速度 | `growth_momentum` | `rank_growth_acceleration` | `TTM` |
 | 18 | 营业收入Rank成长加速度 | `growth_momentum` | `rank_growth_acceleration` | `TTM` |
 | 19 | 总资产Rank成长加速度 | `growth_momentum` | `rank_growth_acceleration` | `balance_sheet_stock` |
+| 20 | 净利润同比增速时序分位点 | `growth_momentum` | `time_series_quantile` | `single_quarter` |
+| 21 | 营业收入同比增速时序分位点 | `growth_momentum` | `time_series_quantile` | `single_quarter` |
+| 22 | 总资产同比增速时序分位点 | `growth_momentum` | `time_series_quantile` | `balance_sheet_stock` |
+| 23 | 净利润同比增速时序回归系数 | `growth_momentum` | `time_series_regression_coefficient` | `single_quarter` |
+| 24 | 营业收入同比增速时序回归系数 | `growth_momentum` | `time_series_regression_coefficient` | `single_quarter` |
+| 25 | 总资产同比增速时序回归系数 | `growth_momentum` | `time_series_regression_coefficient` | `balance_sheet_stock` |
 
 C01不插入Factor 13和Factor 14之间。后续单因子继续使用Factor 20、21…连续编号。
 
@@ -238,11 +244,11 @@ publish.py all
 
 ## 12. 当前开发顺序
 
-1. Factor 1–13与单因子网站基础架构已完成，不再因后续factor开发重跑。
-2. 下一批只实现Factor 14–19的`growth_acceleration`家族：六个因子共用一份数学实现。
-3. 复用现有revenue、n_income_attr_p和total_assets的Stage 3产物，不下载数据，不重做PIT和会计转换。
+1. Factor 1–25与单因子网站基础架构已完成，不再因后续factor开发重跑。
+2. Factor 20–25：时序分位点与时序回归系数共用同一组8期同比增速，代码上共用一份`growth_rate_history`实现；网站上分为两个`method_family`（`time_series_quantile`、`time_series_regression_coefficient`）。Factor 25原文只有定性结论，没有数值benchmark，网页原文列显示“—”，不做容差判断。
+3. 后续因子优先复用已有Stage 3产物，不重复下载数据，不重做PIT和会计转换。
 4. 每个因子只做一次正式运行，只检查新family的数学逻辑、当前factor配置和当前结果数值。
-5. 确认后使用既有`publish.py`发布六个JSON并更新catalog；不新增前端页面、图表组件或因子专属发布脚本。
+5. 验收后使用既有`publish.py`按`--ids`发布对应JSON并更新catalog；不新增前端页面、图表组件或因子专属发布脚本。
 
 ## 13. 禁止事项
 

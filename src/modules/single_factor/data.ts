@@ -31,7 +31,8 @@ export const METHOD_CN: Record<string, string> = {
   path_fit: "路径拟合程度",
   growth_acceleration: "成长加速度",
   rank_growth_acceleration: "Rank成长加速度",
-  time_series_quantile: "时序分位数",
+  time_series_quantile: "增速时序分位点",
+  time_series_regression_coefficient: "增速时序回归系数",
   analyst_revision: "分析师预期调整",
 };
 

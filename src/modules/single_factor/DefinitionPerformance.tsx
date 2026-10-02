@@ -5,6 +5,7 @@ import { CLASSIFICATION_CN, metricValue, type FactorReport } from "./data";
 
 export default function DefinitionPerformance({ report }: { report: FactorReport }) {
   const { definition: d, core_performance: core, notes } = report;
+  const hasPaper = core.benchmark_comparison.some((r) => r.paper !== null);
   const groups = core.decile_returns.filter((r) => r.group !== "G10−G1");
   const longShort = core.decile_returns.find((r) => r.group === "G10−G1");
   const poolName = new Map(core.pool_metrics.map((m) => [m.pool, m.pool_display_name]));
@@ -87,12 +88,18 @@ export default function DefinitionPerformance({ report }: { report: FactorReport
             </tbody>
           </table>
         </div>
-        <p className="caption">相对差 = (复现 − 原文) ÷ |原文|。未做任何参数调整以贴近原文。</p>
+        <p className="caption">
+          {hasPaper
+            ? "相对差 = (复现 − 原文) ÷ |原文|。未做任何参数调整以贴近原文。"
+            : "原文对该因子只有定性结论，没有可核对的数值 benchmark，因此不计算复现差异；原文列显示“—”。"}
+        </p>
       </section>
 
       <section className="card">
         <h2>已登记的复现差异</h2>
-        {notes.known_replication_discrepancies.length === 0 ? (
+        {!hasPaper ? (
+          <p>原文没有可核对的数值 benchmark，不做复现差异分类。</p>
+        ) : notes.known_replication_discrepancies.length === 0 ? (
           <p>验收记录没有单独登记超出项目容差（±20%）的指标差异。各指标的完整差异见上方对比表。</p>
         ) : (
           notes.known_replication_discrepancies.map((x) => (
