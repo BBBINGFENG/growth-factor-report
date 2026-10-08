@@ -1,21 +1,29 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import FactorChart from "../../shared/FactorChart";
 import { num, pct } from "../../shared/format";
-import { CLASSIFICATION_CN, metricValue, type FactorReport } from "./data";
+import { CLASSIFICATION_CN, chartNote, metricValue, type FactorReport } from "./data";
 
-export default function DefinitionPerformance({ report }: { report: FactorReport }) {
-  const { definition: d, core_performance: core, notes } = report;
-  const hasPaper = core.benchmark_comparison.some((r) => r.paper !== null);
-  const groups = core.decile_returns.filter((r) => r.group !== "G10−G1");
-  const longShort = core.decile_returns.find((r) => r.group === "G10−G1");
-  const poolName = new Map(core.pool_metrics.map((m) => [m.pool, m.pool_display_name]));
-  const chartPool = report.provenance.primary_branch.pool_display_name;
+export default function DefinitionPerformance({ report, pool }: { report: FactorReport; pool: string }) {
+  const { definition: d, paper_comparison: paper, notes, display_context: ctx } = report;
+  const analysis = report.analysis_by_pool[pool];
+  const hasPaper = paper.comparison.some((r) => r.paper !== null);
+  const groups = analysis.deciles.filter((r) => r.group !== "G10−G1");
+  const spread = analysis.deciles.find((r) => r.group === "G10−G1");
+  const poolName = new Map(paper.pool_metrics.map((m) => [m.pool, m.pool_display_name]));
 
+  const decileCats = useMemo(() => groups.map((r) => r.group), [report, pool]);
   const decileSeries = useMemo(
-    () => [{ name: "年化收益", type: "bar" as const, data: groups.map((r) => r.arithmetic_annualized_return) }],
-    [report],
+    () => [{ name: "超额收益", type: "bar" as const, data: groups.map((r) => r.excess_annualized) }],
+    [report, pool],
   );
-  const decileCats = useMemo(() => groups.map((r) => r.group), [report]);
+  const decileTooltip = useCallback(
+    (i: number) => [
+      `原始收益：${pct(groups[i].raw_annualized)}`,
+      `股票池等权benchmark：${pct(groups[i].benchmark_annualized)}`,
+      `超额收益：${pct(groups[i].excess_annualized)}`,
+    ],
+    [report, pool],
+  );
 
   return (
     <div className="tab-body">
@@ -44,7 +52,7 @@ export default function DefinitionPerformance({ report }: { report: FactorReport
               <tr><th>股票池</th><th>Rank IC</th><th>年化ICIR</th><th>多空年化收益</th></tr>
             </thead>
             <tbody>
-              {core.pool_metrics.map((m) => (
+              {paper.pool_metrics.map((m) => (
                 <tr key={m.pool}>
                   <td>{m.pool_display_name}</td>
                   <td>{pct(m.rank_ic)}</td>
@@ -55,16 +63,21 @@ export default function DefinitionPerformance({ report }: { report: FactorReport
             </tbody>
           </table>
         </div>
+        <p className="caption">论文包含的全部股票池；不随上方分析市场切换。</p>
       </section>
 
       <section className="card">
-        <FactorChart title={`十档分组年化收益——${chartPool}`} categories={decileCats} series={decileSeries} valueFormat="percent" />
-        {longShort && (
-          <p className="caption">
-            算术年化 = 月均收益 × 12。多空组合（G10−G1）：月均 {pct(longShort.mean_monthly_return)}，算术年化 {pct(longShort.arithmetic_annualized_return)}，
-            有效月份 {longShort.valid_month_count}。
-          </p>
-        )}
+        <FactorChart
+          title={`十档组合相对同股票池等权组合的算术年化超额收益——${analysis.pool_display_name}`}
+          categories={decileCats}
+          series={decileSeries}
+          valueFormat="percent"
+          tooltipLines={decileTooltip}
+        />
+        <p className="caption">
+          {chartNote(ctx, "deciles", analysis.pool_display_name)}
+          {spread && ` 多空组合（G10−G1）算术年化 ${pct(spread.excess_annualized)}，有效月份 ${spread.valid_month_count}；benchmark在价差中相互抵消。`}
+        </p>
       </section>
 
       <section className="card">
@@ -75,7 +88,7 @@ export default function DefinitionPerformance({ report }: { report: FactorReport
               <tr><th>股票池</th><th>指标</th><th>复现</th><th>原文</th><th>绝对差</th><th>相对差</th></tr>
             </thead>
             <tbody>
-              {core.benchmark_comparison.map((r) => (
+              {paper.comparison.map((r) => (
                 <tr key={`${r.pool}-${r.metric}`}>
                   <td>{r.pool_display_name}</td>
                   <td>{r.metric_display_name}</td>

@@ -1,10 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import DefinitionPerformance from "./DefinitionPerformance";
 import StabilityRisk from "./StabilityRisk";
-import { BASIS_CN, METHOD_CN, THEME_CN, loadCatalog, loadFactor, type CatalogEntry, type FactorReport } from "./data";
+import { BASIS_CN, METHOD_CN, THEME_CN, loadCatalog, loadFactor, type CatalogEntry, type FactorReport, type PoolAnalysis } from "./data";
 
 type Tab = "core" | "stability";
 const ALL = "";
+
+// First to last month with a valid long-short return in the selected pool;
+// valid Rank IC months only when there is no valid return at all.
+function effectivePeriod(a: PoolAnalysis): string {
+  const nav = a.long_short_nav.filter((r) => r.monthly_long_short_return !== null && r.nav !== null);
+  if (nav.length) return `${nav[0].period_start} 至 ${nav[nav.length - 1].period_end ?? "—"}`;
+  const ic = a.monthly_ic.filter((r) => r.rank_ic !== null && r.below_min_n === false);
+  if (ic.length) return `${ic[0].date.slice(0, 7)} 至 ${ic[ic.length - 1].date.slice(0, 7)}`;
+  return "—";
+}
 
 function options(values: string[], labels: Record<string, string>) {
   return [...new Set(values)].map((v) => ({ value: v, label: labels[v] ?? v }));
@@ -17,6 +27,7 @@ export default function SingleFactorPage() {
   const [selected, setSelected] = useState("");
   const [report, setReport] = useState<FactorReport | null>(null);
   const [tab, setTab] = useState<Tab>("core");
+  const [pool, setPool] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -41,7 +52,11 @@ export default function SingleFactorPage() {
     setReport(null);
     setError("");
     loadFactor(entry)
-      .then((r) => !cancelled && setReport(r))
+      .then((r) => {
+        if (cancelled) return;
+        setReport(r);
+        setPool(r.provenance.analysis_pools[0]);
+      })
       .catch((e: Error) => !cancelled && setError(e.message));
     return () => {
       cancelled = true;
@@ -49,16 +64,10 @@ export default function SingleFactorPage() {
   }, [catalog, selected]);
 
   const entry = catalog.find((e) => e.id === selected);
-  const ic = report?.stability.monthly_ic ?? [];
-  const period = ic.length ? `${ic[0].date.slice(0, 7)} 至 ${ic[ic.length - 1].date.slice(0, 7)}` : "";
-  const pools = report?.core_performance.pool_metrics.map((m) => m.pool) ?? [];
-  const chartPool = report?.provenance.primary_branch.pool;
-  const poolNote =
-    pools.length > 1 && chartPool === "csi_all" && !pools.includes("market_ex_bje")
-      ? "该因子没有全市场论文 benchmark，图表使用其论文股票池中最宽的中证全指；这是网站展示选择，不是论文规定或研究结论。"
-      : pools.length > 1
-        ? "该因子有多个论文股票池，图表使用全市场。"
-        : "";
+  const analysis = report && pool ? report.analysis_by_pool[pool] : undefined;
+  const period = analysis ? effectivePeriod(analysis) : "—";
+  const ctx = report?.display_context;
+  const pools = report?.provenance.analysis_pools ?? [];
 
   return (
     <>
@@ -110,19 +119,41 @@ export default function SingleFactorPage() {
             </p>
             <p>{report.definition.economic_hypothesis}</p>
             <p className="source">
-              结果来源：正式验收回测 run {report.provenance.source_run_id}；图表展示股票池：
-              {report.provenance.primary_branch.pool_display_name}；样本期：{period}（月度调仓）。
-              {poolNote}
-              网页只展示已冻结的正式结果，不重新计算回测。
+              结果来源：正式验收回测 run {report.provenance.source_run_id}；有效回测期：{period}（月度调仓）。网页只展示已冻结的正式结果，不重新计算回测。
             </p>
           </section>
+
+          {analysis && ctx && (
+            <div className="analysis-bar">
+              {pools.length > 1 ? (
+                <label className="selector">
+                  <span>分析市场</span>
+                  <select value={pool} onChange={(e) => setPool(e.target.value)}>
+                    {pools.map((p) => (
+                      <option key={p} value={p}>{report.analysis_by_pool[p].pool_display_name}</option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <span className="pool-tag">分析市场：{analysis.pool_display_name}</span>
+              )}
+              <p className="context-line">
+                {[analysis.pool_display_name, ctx.frequency, ctx.preprocessing, ctx.return_basis, ctx.decile_benchmark, ctx.transaction_cost].join("｜")}
+              </p>
+            </div>
+          )}
 
           <nav className="tabs">
             <button className={tab === "core" ? "active" : ""} onClick={() => setTab("core")}>定义与核心表现</button>
             <button className={tab === "stability" ? "active" : ""} onClick={() => setTab("stability")}>稳定性与风险</button>
           </nav>
 
-          {tab === "core" ? <DefinitionPerformance report={report} /> : <StabilityRisk report={report} />}
+          {analysis &&
+            (tab === "core" ? (
+              <DefinitionPerformance report={report} pool={pool} />
+            ) : (
+              <StabilityRisk report={report} pool={pool} />
+            ))}
         </>
       )}
 

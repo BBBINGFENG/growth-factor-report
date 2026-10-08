@@ -24,6 +24,8 @@ interface Props {
   yAxisName?: string;
   horizontal?: boolean;
   height?: number;
+  // Optional tooltip body for the hovered category (plain text lines).
+  tooltipLines?: (index: number) => string[];
 }
 
 const PALETTE = ["#1f4e79", "#c0504d", "#7f7f7f", "#4f81bd"];
@@ -33,7 +35,7 @@ function fmt(v: unknown, kind: Props["valueFormat"], digits: number): string {
   return kind === "percent" ? `${(v * 100).toFixed(digits)}%` : v.toFixed(digits);
 }
 
-export default function FactorChart({ title, categories, series, valueFormat, yAxisName, horizontal, height = 320 }: Props) {
+export default function FactorChart({ title, categories, series, valueFormat, yAxisName, horizontal, height = 320, tooltipLines }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,10 +59,18 @@ export default function FactorChart({ title, categories, series, valueFormat, yA
     chart.setOption({
       animation: false,
       grid: { left: horizontal ? 20 : 20, right: 20, top: 10, bottom: 20, containLabel: true },
-      tooltip: {
-        trigger: "axis",
-        valueFormatter: (v: unknown) => fmt(v, valueFormat, valueFormat === "percent" ? 2 : 4),
-      },
+      tooltip: tooltipLines
+        ? {
+            trigger: "axis",
+            formatter: (params: { dataIndex: number }[]) => {
+              const i = params[0]?.dataIndex ?? 0;
+              return [categories[i], ...tooltipLines(i)].join("<br/>");
+            },
+          }
+        : {
+            trigger: "axis",
+            valueFormatter: (v: unknown) => fmt(v, valueFormat, valueFormat === "percent" ? 2 : 4),
+          },
       xAxis: horizontal ? valueAxis : categoryAxis,
       yAxis: horizontal ? { ...categoryAxis, inverse: true } : valueAxis,
       series: series.map((s, i) => ({
@@ -81,7 +91,7 @@ export default function FactorChart({ title, categories, series, valueFormat, yA
       window.removeEventListener("resize", onResize);
       chart.dispose();
     };
-  }, [title, categories, series, valueFormat, yAxisName, horizontal]);
+  }, [title, categories, series, valueFormat, yAxisName, horizontal, tooltipLines]);
 
   return (
     <div className="chart-shell" style={{ height }}>

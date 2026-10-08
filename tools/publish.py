@@ -60,6 +60,24 @@ FACTORS = {
     "23": {"name_en": "Net Income YoY Growth Time-Series Regression Coefficient", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_regression_coefficient"},
     "24": {"name_en": "Revenue YoY Growth Time-Series Regression Coefficient", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_regression_coefficient"},
     "25": {"name_en": "Total Assets YoY Growth Time-Series Regression Coefficient", "research_theme": "growth_momentum", "source_type": "paper_core", "method_family": "time_series_regression_coefficient"},
+    "26": {"name_en": "Regression-Predicted Net Income Growth", "research_theme": "forward_growth", "source_type": "paper_core", "method_family": "cross_sectional_growth_forecast"},
+    "29": {"name_en": "Standardized Unexpected Earnings (SUE)", "research_theme": "earnings_surprise", "source_type": "paper_core", "method_family": "standardized_unexpected_growth"},
+    "30": {"name_en": "Standardized Unexpected Revenue (SUR)", "research_theme": "earnings_surprise", "source_type": "paper_core", "method_family": "standardized_unexpected_growth"},
+    "31": {"name_en": "Jump of Report Date (MAX)", "research_theme": "earnings_surprise", "source_type": "paper_core", "method_family": "jump_of_report_date"},
+    "32": {"name_en": "Jump of Report Date (LAST)", "research_theme": "earnings_surprise", "source_type": "paper_core", "method_family": "jump_of_report_date"},
+    "33": {"name_en": "Formal Report vs Forecast / Express Surprise", "research_theme": "earnings_surprise", "source_type": "paper_core", "method_family": "report_expectation_surprise"},
+    "35": {"name_en": "PEG (TTM)", "research_theme": "growth_valuation", "source_type": "paper_core", "method_family": "peg"},
+    "36": {"name_en": "PEG (Single Quarter)", "research_theme": "growth_valuation", "source_type": "paper_core", "method_family": "peg"},
+    "37": {"name_en": "Gross Profit YoY Growth (Single Quarter)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "profit_growth"},
+    "38": {"name_en": "Operating Profit YoY Growth (Single Quarter)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "profit_growth"},
+    "39": {"name_en": "CFO YoY Growth (TTM)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "cashflow_growth"},
+    "41": {"name_en": "CFO / Revenue YoY Change (TTM)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "cashflow_to_revenue_change"},
+    "42": {"name_en": "Total Asset Turnover YoY Change (Single Quarter)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "operating_efficiency_change"},
+    "43": {"name_en": "Fixed Asset Turnover YoY Change (Single Quarter)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "operating_efficiency_change"},
+    "44": {"name_en": "Inventory Turnover YoY Change (Single Quarter)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "operating_efficiency_change"},
+    "45": {"name_en": "Gross Margin YoY Growth (Single Quarter)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "profitability_improvement"},
+    "46": {"name_en": "Net Margin YoY Growth (Single Quarter)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "profitability_improvement"},
+    "47": {"name_en": "Delta ROE (Single Quarter)", "research_theme": "multidimensional_growth", "source_type": "paper_core", "method_family": "profitability_improvement"},
 }
 METHOD_FAMILY = {
     "growth_rate": "growth_rate",
@@ -67,9 +85,11 @@ METHOD_FAMILY = {
     "upward_count_ratio": "upward_count_ratio",
     "path_fit": "path_fit",
 }
-CATALOG_BASIS = {"single_quarter": "single_quarter", "ttm": "TTM", "stock": "balance_sheet_stock"}
+CATALOG_BASIS = {"single_quarter": "single_quarter", "ttm": "TTM", "stock": "balance_sheet_stock", "not_applicable": "not_applicable", "event_based": "event_based"}
 BENCHMARKS = {"csi300": "csi300_monthly_open_to_open.json"}
-REQUIRED_RUN_FILES = ["manifest.json", "benchmark_comparison.csv", "monthly_ic.parquet", "decile_returns.parquet"]
+REQUIRED_RUN_FILES = ["manifest.json", "benchmark_comparison.csv", "monthly_ic.parquet", "decile_returns.parquet",
+                      "factor_panel_raw.parquet"]
+SCHEMA_VERSION = 2
 
 
 def _sha256(path: Path) -> str:
@@ -133,18 +153,23 @@ def publish_factor(factor_id: str) -> tuple:
     data_file = f"factors/{folder.name.removeprefix('factor_')}.json"
     meta = FACTORS[factor_id]
     report = {
-        "schema_version": "1.0",
+        "schema_version": SCHEMA_VERSION,
         "factor": {"id": factor_id, "key": key, "name_cn": entry["display_name"], "name_en": meta["name_en"], "family": entry["family"]},
         "definition": body["definition"],
-        "core_performance": body["core_performance"],
-        "stability": body["stability"],
-        "risk_exposure": body["risk_exposure"],
+        "paper_comparison": body["paper_comparison"],
+        "display_context": body["display_context"],
+        "analysis_by_pool": body["analysis_by_pool"],
+        "coverage_by_pool": body["coverage_by_pool"],
         "notes": body["notes"],
         "provenance": {
             "source_run_id": run_dir.name,
             "source_manifest_sha256": _sha256(run_dir / "manifest.json"),
             "acceptance_record": str(record_path.relative_to(PROJECT_ROOT)),
-            "primary_branch": body["primary_branch"],
+            "analysis_pools": list(body["analysis_by_pool"]),
+            "decile_excess_return_benchmark": {
+                "run": str(reporting.POOL_BENCHMARK_RUN.relative_to(PROJECT_ROOT)),
+                "manifest_sha256": _sha256(reporting.POOL_BENCHMARK_RUN / "manifest.json"),
+            },
             "source_files": source_files,
         },
     }

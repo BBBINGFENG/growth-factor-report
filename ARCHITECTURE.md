@@ -70,7 +70,7 @@ website/
 每个因子至少包含以下分类字段：
 
 - `research_theme`：`traditional_growth`、`growth_path`、`growth_momentum`、`forward_growth`、`earnings_surprise`、`growth_valuation`、`multidimensional_growth`、`low_base`。
-- `method_family`：例如`growth_rate`、`displacement_path_ratio`、`upward_count_ratio`、`time_series_quantile`、`time_series_regression_coefficient`、`analyst_revision`。
+- `method_family`：例如`growth_rate`、`displacement_path_ratio`、`upward_count_ratio`、`time_series_quantile`、`time_series_regression_coefficient`、`cross_sectional_growth_forecast`、`analyst_revision`、`standardized_unexpected_growth`、`jump_of_report_date`、`report_expectation_surprise`、`analyst_earnings_surprise`、`peg`、`profit_growth`、`cashflow_growth`、`cashflow_to_revenue_change`、`operating_efficiency_change`、`profitability_improvement`。
 - `source_type`：`paper_core`、`cross_report`、`external_literature`、`project_extension`。
 - `accounting_basis`：`single_quarter`、`TTM`、`balance_sheet_stock`、`event_based`、`not_applicable`。
 - `published`：只表示是否已有可在网站展示的冻结结果，不是审批状态。
@@ -134,6 +134,28 @@ Composite 不占用 Factor 01、02…的连续单因子编号，改用`Composite
 | 23 | 净利润同比增速时序回归系数 | `growth_momentum` | `time_series_regression_coefficient` | `single_quarter` |
 | 24 | 营业收入同比增速时序回归系数 | `growth_momentum` | `time_series_regression_coefficient` | `single_quarter` |
 | 25 | 总资产同比增速时序回归系数 | `growth_momentum` | `time_series_regression_coefficient` | `balance_sheet_stock` |
+| 26 | 回归预测净利润增速 | `forward_growth` | `cross_sectional_growth_forecast` | `TTM` |
+| 27 | 分析师预期净利润上调 | `forward_growth` | `analyst_revision` | `not_applicable` |
+| 28 | 分析师预期ROE上调 | `forward_growth` | `analyst_revision` | `not_applicable` |
+| 29 | SUE标准化预期外盈利 | `earnings_surprise` | `standardized_unexpected_growth` | `single_quarter` |
+| 30 | SUR标准化预期外收入 | `earnings_surprise` | `standardized_unexpected_growth` | `single_quarter` |
+| 31 | JOR(MAX) | `earnings_surprise` | `jump_of_report_date` | `event_based` |
+| 32 | JOR(LAST) | `earnings_surprise` | `jump_of_report_date` | `event_based` |
+| 33 | 正式财报超预告快报预期 | `earnings_surprise` | `report_expectation_surprise` | `event_based` |
+| 34 | 单季度业绩超分析师预期 | `earnings_surprise` | `analyst_earnings_surprise` | `single_quarter` |
+| 35 | PEG·TTM | `growth_valuation` | `peg` | `TTM` |
+| 36 | PEG·单季度 | `growth_valuation` | `peg` | `single_quarter` |
+| 37 | 毛利润同比增速·单季度 | `multidimensional_growth` | `profit_growth` | `single_quarter` |
+| 38 | 营业利润同比增速·单季度 | `multidimensional_growth` | `profit_growth` | `single_quarter` |
+| 39 | CFO同比增速·TTM | `multidimensional_growth` | `cashflow_growth` | `TTM` |
+| 40 | 自由现金流同比增速·TTM | `multidimensional_growth` | `cashflow_growth` | `TTM` |
+| 41 | CFO/营业收入同比变化·TTM | `multidimensional_growth` | `cashflow_to_revenue_change` | `TTM` |
+| 42 | 总资产周转率同比变化·单季度 | `multidimensional_growth` | `operating_efficiency_change` | `single_quarter` |
+| 43 | 固定资产周转率同比变化·单季度 | `multidimensional_growth` | `operating_efficiency_change` | `single_quarter` |
+| 44 | 存货周转率同比变化·单季度 | `multidimensional_growth` | `operating_efficiency_change` | `single_quarter` |
+| 45 | 毛利率同比增速·单季度 | `multidimensional_growth` | `profitability_improvement` | `single_quarter` |
+| 46 | 净利率同比增速·单季度 | `multidimensional_growth` | `profitability_improvement` | `single_quarter` |
+| 47 | Delta ROE·单季度 | `multidimensional_growth` | `profitability_improvement` | `single_quarter` |
 
 C01不插入Factor 13和Factor 14之间。后续单因子继续使用Factor 20、21…连续编号。
 
@@ -168,14 +190,18 @@ public/data/single_factor/factors/
 | Economic hypothesis | `因子规格/<factor>.md`和因子定义 |
 | 公式与窗口 | Factor `definition.py`和因子规格 |
 | Rank IC、ICIR、多空收益 | 冻结的正式factor run |
-| 十档收益 | `decile_returns` |
-| 论文benchmark | `benchmark_comparison` |
+| 十档超额收益 | `decile_returns`减同股票池等权收益（`data/processed/benchmarks/pool_equal_weight/`） |
+| 论文benchmark | `benchmark_comparison`的primary分支 |
 | Monthly IC | `monthly_ic` |
 | 多空累计净值 | 冻结的月度多空收益 |
-| 年度表现 | 冻结月度结果的一次性展示汇总 |
-| Coverage | 冻结factor panel |
+| 年度表现与风险指标 | 冻结的月度多空收益与月度Rank IC |
+| 六市场回测有效覆盖率 | `factor_panel_raw`、共享市值/行业输入、E1收益与历史PIT成分 |
 | 市值/行业暴露 | 冻结processed factor panel |
 | 沪深300市场参考 | `public/data/shared/benchmarks/csi300_monthly_open_to_open.json` |
+
+因子JSON为`schema_version = 2`：`definition`与`paper_comparison`为因子级；`analysis_by_pool`只含`benchmark_comparison.csv`中`result_role == "primary"`的市场，按市场给出十档超额、Monthly IC、多空净值、年度表现和暴露；`coverage_by_pool`固定包含六个股票池；`display_context`给出页面口径和每张图表的一句说明。
+
+三个概念分开命名：`paper_benchmark`（论文Rank IC/ICIR/多空，只用于复现比较）、`decile_excess_return_benchmark`（同股票池等权组合，十档超额的基准）、`market_reference`（沪深300，只作市场环境参考）。
 
 `scripts/stage4_single_factor/core/reporting.py`是单因子网站汇总指标的唯一计算位置。发布脚本只调用它并写出JSON；前端只显示JSON。
 
@@ -189,6 +215,7 @@ public/data/single_factor/factors/
 - 基准不复制进因子JSON，一个页面会话只请求一次。
 - 因子与基准均按月初开盘到下月月初开盘对齐，共同起点归一为1。
 - 网站必须标注“沪深300价格指数（市场参考）”，不得写成总收益指数。
+- 沪深300不是十档收益benchmark。十档超额收益的基准是同股票池等权组合：每月该股票池PIT合格成员中E1收益有效股票的等权平均，与因子样本无关，只构建一份（`data/processed/benchmarks/pool_equal_weight/<run_id>/`），不复制进因子JSON。
 
 ## 9. 统一发布程序
 
@@ -240,15 +267,22 @@ publish.py all
 - 按`research_theme`筛选；
 - 按`method_family`筛选；
 - 选择具体因子；
-- “定义与核心表现”和“稳定性与风险”两个标签页。
+- “定义与核心表现”和“稳定性与风险”两个标签页；
+- 有多个primary市场时，页面级分析市场选择器同时控制十档、Monthly IC、多空净值、年度表现和暴露；只有一个时显示静态市场标签；
+- 覆盖率使用单独的市场选择器，一次只画一个市场。
 
 ## 12. 当前开发顺序
 
-1. Factor 1–25与单因子网站基础架构已完成，不再因后续factor开发重跑。
-2. Factor 20–25：时序分位点与时序回归系数共用同一组8期同比增速，代码上共用一份`growth_rate_history`实现；网站上分为两个`method_family`（`time_series_quantile`、`time_series_regression_coefficient`）。Factor 25原文只有定性结论，没有数值benchmark，网页原文列显示“—”，不做容差判断。
-3. 后续因子优先复用已有Stage 3产物，不重复下载数据，不重做PIT和会计转换。
-4. 每个因子只做一次正式运行，只检查新family的数学逻辑、当前factor配置和当前结果数值。
-5. 验收后使用既有`publish.py`按`--ids`发布对应JSON并更新catalog；不新增前端页面、图表组件或因子专属发布脚本。
+1. Factor 1–26、29–33、35–39、41–47已验收并发布，共43个（单因子共47个）；Factor 27、28、34依赖分析师一致预期，因report_rc当前账号限额阻塞（F34代码与合成测试已完成，未登记）；Factor 40因Tushare `free_cashflow`版本冲突阻塞（代码、规格与合成测试已完成，未登记）。已验收因子不再因后续factor开发重跑。
+2. Factor 37–41共用一份`stage3_multidimensional_growth_inputs`（单季度毛利润、营业利润，TTM的CFO、自由现金流和营业收入，当期与上年同期两组值）。毛利润在同一财报版本内由营业收入减营业成本得到；Factor 41的“同比变化”是两个比率之差，CFO与营业收入必须是同一报告期。Factor 40使用Tushare `cashflow.free_cashflow`（vendor field proxy，原文未给FCF公式），同一披露版本的两行取值不一致或一行为空时按冻结规则置缺失，2020年后有效率大多低于5%，因此不运行、不发布。
+3. Factor 42–47共用一份`stage3_operating_efficiency_profitability_inputs`（单季度营业收入、营业成本、归母净利润在t与t−4，总资产、固定资产、存货、归母股东权益在t、t−1、t−4、t−5的报告期末值）。Factor 42–44与47是比率的绝对差值，Factor 45–46是利润率的相对增速；比率不乘4年化。固定资产优先`fix_assets_total`，确实为空时才用`fix_assets`；F44分子用营业收入、F47与表10 ROE Growth同式，均为项目实现选择（strong_inference），不是原文明示。
+4. Factor 31–33共用一份`stage3_report_events`（预告、快报、正式财报事件，事件JOR，预告/快报与正式值配对）。JOR采用保守T+1与50个自然日，是approximate replication；Factor 33分母`|expected|`是项目实现选择。Factor 35–36（PEG）为负向因子：论文对比使用原始定义，十档与图表使用−PEG（sign_flipped）。
+5. Factor 26–30分属三个family：`cross_sectional_growth_forecast`（26）、`analyst_revision`（27–28）、`standardized_unexpected_growth`（29–30）。Factor 26自2014-11起才有值（2009Q3以前没有总市值，回归需5年样本），2021年以前其他流动负债空值较多，覆盖率较低。
+6. Factor 27–28代码已完成，尚未运行和发布：当前Tushare账号的`report_rc`限额为每分钟1次、每小时10次、每天10次，全量历史约需数百次分页请求，无法下载；取得更高权限或其他数据源后，再下载、构建一致预期、正式运行并发布。一致预期由`report_rc`自行重建，不等同于Wind一致预期。
+7. Factor 20–25：时序分位点与时序回归系数共用同一组8期同比增速，代码上共用一份`growth_rate_history`实现；网站上分为两个`method_family`（`time_series_quantile`、`time_series_regression_coefficient`）。Factor 25原文只有定性结论，没有数值benchmark，网页原文列显示“—”，不做容差判断。
+8. 后续因子优先复用已有Stage 3产物，不重复下载数据，不重做PIT和会计转换。
+9. 每个因子只做一次正式运行，只检查新family的数学逻辑、当前factor配置和当前结果数值。
+10. 验收后使用既有`publish.py`按`--ids`发布对应JSON并更新catalog；不新增前端页面、图表组件或因子专属发布脚本。
 
 ## 13. 禁止事项
 
