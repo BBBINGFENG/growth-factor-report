@@ -1,0 +1,127 @@
+{
+ "schema_version": 1,
+ "items": [
+  {
+   "id": "D01",
+   "name_cn": "综合估值因子（D01，系列一）",
+   "role": "dependency",
+   "role_cn": "外部依赖（系列一）",
+   "inherits_d01": false,
+   "data_file": "items/D01.json"
+  },
+  {
+   "id": "C01",
+   "name_cn": "成长路径",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": false,
+   "data_file": "items/C01.json"
+  },
+  {
+   "id": "C02",
+   "name_cn": "成长动能",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": false,
+   "data_file": "items/C02.json"
+  },
+  {
+   "id": "C03",
+   "name_cn": "未来成长（删减版）",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": false,
+   "data_file": "items/C03.json"
+  },
+  {
+   "id": "C04",
+   "name_cn": "超预期（删减版）",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": false,
+   "data_file": "items/C04.json"
+  },
+  {
+   "id": "C08",
+   "name_cn": "综合成长性价比",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": true,
+   "data_file": "items/C08.json"
+  },
+  {
+   "id": "C09",
+   "name_cn": "多维成长（删减版）",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": false,
+   "data_file": "items/C09.json"
+  },
+  {
+   "id": "C10",
+   "name_cn": "传统成长",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": false,
+   "data_file": "items/C10.json"
+  },
+  {
+   "id": "C11",
+   "name_cn": "剔除低基数后的传统成长",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": false,
+   "data_file": "items/C11.json"
+  },
+  {
+   "id": "C12",
+   "name_cn": "综合成长补充",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": true,
+   "data_file": "items/C12.json"
+  },
+  {
+   "id": "C13",
+   "name_cn": "剔除传统成长后的残差",
+   "role": "main",
+   "role_cn": "主要组合",
+   "inherits_d01": true,
+   "data_file": "items/C13.json"
+  },
+  {
+   "id": "C06",
+   "name_cn": "成长性价比",
+   "role": "intermediate",
+   "role_cn": "中间组合（intermediate component）",
+   "inherits_d01": true,
+   "data_file": "items/C06.json"
+  },
+  {
+   "id": "C07",
+   "name_cn": "成长动能性价比",
+   "role": "intermediate",
+   "role_cn": "中间组合（intermediate component）",
+   "inherits_d01": true,
+   "data_file": "items/C07.json"
+  }
+ ],
+ "notice": {
+  "title": "组合结果的性质与限制",
+  "points": [
+   "这些是删减版、带实施假设的原文框架复现（paper-framework reproduction），不是完整、严格一致的原文复现。F27、F28、F34、F40 已移出研究范围，不恢复、不补零、不寻找替代因子；C05 不在本次范围。",
+   "组合输入从冻结的单因子原始信号出发，按组合预处理路线（MAD 去极值、z-score、仅市值中性化、申万2021一级行业内百分位）重新处理；每个层级只对有效成分等权，缺失不补零。",
+   "月度调仓；日频风险来自现有的日度估值路径（每日收盘估值，月内不再平衡）。日频 Sharpe = 日收益均值 / 日收益标准差（ddof=1）× √252，rf=0，不是月频 Sharpe ÷ √20。月频 Rank IC、ICIR 仍由月度序列计算。",
+   "未计交易成本、滑点和真实融券约束；下一调仓日没有开盘价的持仓按最近有效价格估值并假设可平仓（theoretical proxy），复牌后的损益可能遗漏。",
+   "沪深300价格指数只作市场环境参考，不是多空组合的直接 benchmark。",
+   "依赖 D01 的 C06、C07、C08、C12、C13 继承 D01 的限制：扣非净利润只有公告日、不是严格 PIT；系列一股票池规则未重建；36 个月窗口在 2020 年前覆盖偏薄。D01 通过实现者计算核验与 Codex 限定范围独立计算审查，不等于历史数据满足严格 PIT、历史版本完整或完整原文复现。",
+   "与原文数值接近或相对差小于 20% 只是参考，不证明计算正确或严格复现。"
+  ]
+ },
+ "status_note": {
+  "composites": "C01-C04, C06-C13: computation chain re-verified by the implementer with separate formulas and reviewed by Codex (EXTERNAL_REVIEW_20261018_codex.json); the rev3 coverage fix re-reviewed by Codex (EXTERNAL_REVIEW_20261018_codex_rev3.json); per-item status in status_components",
+  "d01": "D01 remains a limited research baseline (frozen run status candidate, RESEARCH_BASELINE_USAGE.json); implementer calculation verification (计算核验_20261018) and a limited-scope independent calculation review by Codex (EXTERNAL_REVIEW_20261018_codex_d01.json, user-forwarded; financial as-of spot-checked on 8 dates) passed",
+  "not_claimed": "strict PIT, completeness of raw-data historical versions, exact paper replication, or that the whole system passed"
+ },
+ "interface_revision": "rev5"
+}

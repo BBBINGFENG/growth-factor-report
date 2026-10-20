@@ -2,12 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import FactorChart, { type Series } from "../../shared/FactorChart";
 import { num, pct } from "../../shared/format";
 import { chartNote, loadCsi300, navPoints, type BenchmarkReport, type FactorReport } from "./data";
+import { FormulaLink } from "./CalculationMethods";
+import DailyRisk from "./DailyRisk";
+import type { ShowFormula } from "./methodologyDefinitions";
 
 const TOP_INDUSTRIES = 10;
 
 type MarketState = { status: "loading" } | { status: "ok"; data: BenchmarkReport } | { status: "error" };
 
-export default function StabilityRisk({ report, pool }: { report: FactorReport; pool: string }) {
+export default function StabilityRisk({ report, pool, onShowFormula }: { report: FactorReport; pool: string; onShowFormula: ShowFormula }) {
   const ctx = report.display_context;
   const a = report.analysis_by_pool[pool];
   const r = a.risk_exposure;
@@ -91,17 +94,21 @@ export default function StabilityRisk({ report, pool }: { report: FactorReport; 
       <section className="card">
         <FactorChart title={`月度 Rank IC 与 12个月滚动均值——${a.pool_display_name}`} categories={charts.icDates} series={charts.icSeries} valueFormat="percent" />
         <p className="caption">{chartNote(ctx, "monthly_ic", a.pool_display_name)}</p>
+        <FormulaLink section="ic" onShow={onShowFormula}>查看 Rank IC、ICIR、正占比与滚动均值公式</FormulaLink>
       </section>
 
+      {a.daily_valuation?.sample && <DailyRisk daily={a.daily_valuation} poolName={a.pool_display_name} ctx={ctx} onShowFormula={onShowFormula} />}
+
       <section className="card">
-        <FactorChart title={`多空组合累计净值——${a.pool_display_name}`} categories={charts.navDates} series={charts.navSeries} valueFormat="number" yAxisName="净值" />
+        <FactorChart title={`${a.daily_valuation ? "月频对照：" : ""}多空组合累计净值（月度端点）——${a.pool_display_name}`} categories={charts.navDates} series={charts.navSeries} valueFormat="number" yAxisName="净值" />
         {market.status === "loading" && <p className="caption">沪深300价格指数（市场环境参考）加载中…</p>}
         {market.status === "error" && <p className="market-error">市场参考暂时无法加载</p>}
         <p className="caption">{chartNote(ctx, "long_short_nav", a.pool_display_name)}</p>
+        <FormulaLink section="monthly_risk" onShow={onShowFormula}>查看月频净值与复合收益公式</FormulaLink>
       </section>
 
       <section className="card">
-        <h2>年度表现——{a.pool_display_name}</h2>
+        <h2>{a.daily_valuation ? "月频对照：" : ""}年度表现（月度收益）——{a.pool_display_name}</h2>
         <div className="table-wrap">
           <table>
             <thead>
@@ -132,7 +139,11 @@ export default function StabilityRisk({ report, pool }: { report: FactorReport; 
             </tbody>
           </table>
         </div>
-        <p className="caption">{chartNote(ctx, "annual_performance", a.pool_display_name)}</p>
+        <p className="caption">{chartNote(ctx, "annual_performance", a.pool_display_name)} 月频指标不包含月内跌后恢复的净值路径。</p>
+        <div className="formula-links">
+          <FormulaLink section="monthly_risk" onShow={onShowFormula}>月频 Sharpe / 波动率 / 回撤 / CAGR 公式</FormulaLink>
+          <FormulaLink section="ic" onShow={onShowFormula}>Rank IC / ICIR / IC&gt;0 占比公式</FormulaLink>
+        </div>
       </section>
 
       <section className="card">
@@ -171,16 +182,22 @@ export default function StabilityRisk({ report, pool }: { report: FactorReport; 
         </div>
         <FactorChart title={`回测有效覆盖率——${cov.pool_display_name}`} categories={covChart.dates} series={covChart.series} valueFormat="percent" />
         <p className="caption">{chartNote(ctx, "coverage", cov.pool_display_name)}</p>
+        <FormulaLink section="coverage" onShow={onShowFormula}>查看覆盖率分子、分母与生效期规则</FormulaLink>
       </section>
 
       <section className="card">
         <FactorChart title={`市值暴露——${a.pool_display_name}`} categories={charts.sizeDates} series={charts.sizeSeries} valueFormat="number" yAxisName="相关系数" />
         <p className="caption">{chartNote(ctx, "size_exposure", a.pool_display_name)}</p>
+        <div className="formula-links">
+          <FormulaLink section="exposure" onShow={onShowFormula}>市值暴露公式</FormulaLink>
+          <FormulaLink section="preprocessing" onShow={onShowFormula}>Neutralization 公式与接近0的原因</FormulaLink>
+        </div>
       </section>
 
       <section className="card">
         <FactorChart title={`行业暴露：行业均值的加权离散度——${a.pool_display_name}`} categories={charts.dispDates} series={charts.dispSeries} valueFormat="number" yAxisName="离散度" />
         <p className="caption">{chartNote(ctx, "industry_exposure", a.pool_display_name)}</p>
+        <FormulaLink section="exposure" onShow={onShowFormula}>查看行业均值与加权离散度公式</FormulaLink>
       </section>
 
       <section className="card">
@@ -193,6 +210,7 @@ export default function StabilityRisk({ report, pool }: { report: FactorReport; 
           height={Math.max(280, 34 * charts.bias.length + 80)}
         />
         <p className="caption">{chartNote(ctx, "industry_exposure", a.pool_display_name)} 柱长为该行业全样本月度平均暴露（标准化单位）。</p>
+        <FormulaLink section="exposure" onShow={onShowFormula}>查看长期行业偏向公式</FormulaLink>
       </section>
     </div>
   );

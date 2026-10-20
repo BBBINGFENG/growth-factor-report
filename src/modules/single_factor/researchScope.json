@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "decision_date": "2026-10-16",
+  "excluded_factors": [
+    {
+      "id": "27",
+      "name_cn": "分析师预期净利润上调",
+      "status": "excluded_by_scope",
+      "reason": "本阶段不采用分析师一致预期数据"
+    },
+    {
+      "id": "28",
+      "name_cn": "分析师预期ROE上调",
+      "status": "excluded_by_scope",
+      "reason": "本阶段不采用分析师一致预期数据"
+    },
+    {
+      "id": "34",
+      "name_cn": "单季度业绩超分析师预期",
+      "status": "excluded_by_scope",
+      "reason": "本阶段不采用分析师一致预期数据"
+    },
+    {
+      "id": "40",
+      "name_cn": "自由现金流同比增速·TTM",
+      "status": "excluded_by_scope",
+      "reason": "用户决定从当前研究清单移除，不再等待自由现金流数据冲突解决"
+    }
+  ],
+  "retained_factors": [
+    {
+      "id": "26",
+      "note": "财务指标回归预测，保留现有结果，不属于本次排除的分析师信号。"
+    }
+  ],
+  "composition_policy": {
+    "component_weighting": "equal_within_each_original_level_after_scope_exclusions",
+    "single_component": "keep_category_with_weight_one",
+    "runtime_missing": "finite_available_mean_within_each_level_all_missing_stays_missing",
+    "runtime_missing_decision_date": "2026-10-16",
+    "component_sets": {
+      "C01": ["05", "06", "07", "08", "09", "10", "11", "12", "13"],
+      "C02": ["17", "18", "19", "20", "21", "22", "23", "24", "25"]
+    },
+    "unspecified_preprocessing": "mad_winsorization_zscore_size_only_residual_industry_percentile",
+    "unresolved_dependencies": ["D01"],
+    "summary": "保留原文组合类别与层级，剔除上述四个成分后，剩余组件在每层重新等权；只剩一个组件时权重为100%。",
+    "note": "不补0、不伪造信号。逐股票、逐月、逐合成层级对有效组件等权，全部缺失则缺失，并记录组件数与覆盖率。D01综合估值保留并优先实现，尚未验收，不自动用PEG替代。"
+  },
+  "affected_composites": [
+    {
+      "ids": ["C03"],
+      "name_cn": "未来成长因子",
+      "impact": "保留未来成长类别，删减版仅由F26构成、权重100%；输入处理相同时与F26信号一致，不代表新增独立信息。"
+    },
+    {
+      "ids": ["C04"],
+      "name_cn": "超预期综合因子",
+      "impact": "删减版由F29、F30、F32、F33四个组件等权构成，不加入JOR(MAX)，不包含F34。"
+    },
+    {
+      "ids": ["C09"],
+      "name_cn": "多维度综合成长因子",
+      "impact": "删减版保留现金流、经营效率、盈利能力三个维度，先维度内等权，再三维等权；现金流维度仅保留F39/F41，不包含F40及分析师维度。"
+    },
+    {
+      "ids": ["C12", "C13"],
+      "name_cn": "综合成长补充因子及其残差因子",
+      "impact": "保留总因子及残差检验，按删减后的类别组件构建并披露最终成分；成长性价比仍需D01综合估值，不能凭空补出该类别。"
+    }
+  ]
+}

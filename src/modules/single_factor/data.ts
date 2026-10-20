@@ -108,6 +108,77 @@ export interface AnnualRow {
   csi300_return: Num;
 }
 
+export interface DailyAnnualRow {
+  period: string;
+  label: string;
+  return_type: "interval" | "cagr";
+  begin_point: string;
+  end_point: string;
+  calendar_days: number;
+  return: Num;
+  annualized_volatility: Num;
+  sharpe: Num;
+  max_drawdown: Num;
+  max_drawdown_peak_date: string;
+  max_drawdown_trough_date: string;
+  valid_days: number;
+  cash_days: number;
+  invested_days: number;
+  conditional_annualized_volatility: Num;
+  conditional_sharpe: Num;
+  csi300_return: Num;
+}
+
+export interface E1EndpointYear {
+  year: string;
+  months: number;
+  begin_open: string;
+  end_open: string;
+  e1_monthly: Num;
+  daily_model: Num;
+  daily_model_e1_pricing: Num;
+  months_with_carried_exit: number;
+}
+
+// Monthly rebalancing, daily close valuation; computed by the research layer.
+export interface DailyValuation {
+  basis: string;
+  annualization_days: number;
+  risk_free_rate: number;
+  std_ddof: number;
+  start_date: string;
+  end_date: string;
+  nav: { dates: string[]; points: ("open" | "close")[]; value: number[]; drawdown: number[] };
+  annual_performance: DailyAnnualRow[];
+  sample: {
+    rule: string;
+    rule_cn: string;
+    outside_pool_coverage_months: number;
+    factor_unavailable_months: number;
+    factor_unavailable_last_month: string | null;
+    cash_months: string[];
+  };
+  summary: {
+    position_months: number;
+    cash_months: number;
+    comparable_months: number;
+    valid_days: number;
+    cash_days: number;
+    invested_days: number;
+    stale_position_days: Record<"suspended" | "delisted" | "unknown", number>;
+    exit_carried_positions: number;
+    exit_positions_by_reason: Record<"suspended" | "delisted" | "unknown", number>;
+    entry_without_open: number;
+  };
+  reconciliation: {
+    max_abs_difference_comparable_months: Num;
+    max_abs_difference_e1_pricing: Num;
+    e1_compounded: Num;
+    daily_compounded: Num;
+    e1_endpoint_years: E1EndpointYear[];
+  };
+}
+
 export interface PoolAnalysis {
   pool_display_name: string;
   preprocessing_universe: string;
@@ -115,6 +186,7 @@ export interface PoolAnalysis {
   monthly_ic: { date: string; rank_ic: Num; rolling_12m_ic: Num; n_valid: number | null; below_min_n: boolean | null }[];
   long_short_nav: { period_start: string; period_end: string | null; monthly_long_short_return: Num; nav: Num }[];
   annual_performance: AnnualRow[];
+  daily_valuation?: DailyValuation;
   risk_exposure: {
     size: DatedBeforeAfter[];
     industry: {
@@ -149,7 +221,10 @@ export type ChartKey =
   | "annual_performance"
   | "coverage"
   | "size_exposure"
-  | "industry_exposure";
+  | "industry_exposure"
+  | "daily_nav"
+  | "daily_drawdown"
+  | "daily_annual";
 
 export interface DisplayContext {
   frequency: string;
@@ -166,6 +241,8 @@ export interface FactorReport {
   definition: {
     economic_hypothesis: string;
     formula: string;
+    formula_tex?: string;
+    formula_symbols?: { tex: string; meaning: string }[];
     input_field: string;
     window: string;
     direction: string;
@@ -197,7 +274,7 @@ export interface FactorReport {
 }
 
 export function chartNote(ctx: DisplayContext, key: ChartKey, poolName: string): string {
-  return ctx.chart_notes[key].replace("{pool}", poolName);
+  return (ctx.chart_notes[key] ?? "").replace("{pool}", poolName);
 }
 
 export const loadCatalog = () => getJson<CatalogEntry[]>("single_factor/catalog.json");
@@ -227,6 +304,23 @@ export function loadCsi300(): Promise<BenchmarkReport> {
     throw e;
   });
   return csi300Promise;
+}
+
+export interface DailyBenchmark {
+  benchmark: { id: string; name_cn: string; role: string; start_date: string; end_date: string };
+  dates: string[];
+  open: number[];
+  close: number[];
+}
+
+let csi300DailyPromise: Promise<DailyBenchmark> | null = null;
+
+export function loadCsi300Daily(): Promise<DailyBenchmark> {
+  csi300DailyPromise ??= getJson<DailyBenchmark>("shared/benchmarks/csi300_daily_open_close.json").catch((e) => {
+    csi300DailyPromise = null;
+    throw e;
+  });
+  return csi300DailyPromise;
 }
 
 // NAV display points: initial value 1 at the period_start of the first row with a NAV,

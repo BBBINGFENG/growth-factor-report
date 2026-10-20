@@ -2,8 +2,11 @@ import { useCallback, useMemo } from "react";
 import FactorChart from "../../shared/FactorChart";
 import { num, pct } from "../../shared/format";
 import { CLASSIFICATION_CN, chartNote, metricValue, type FactorReport } from "./data";
+import { FormulaLink } from "./CalculationMethods";
+import { FactorFormula } from "./FactorFormula";
+import type { ShowFormula } from "./methodologyDefinitions";
 
-export default function DefinitionPerformance({ report, pool }: { report: FactorReport; pool: string }) {
+export default function DefinitionPerformance({ report, pool, onShowFormula }: { report: FactorReport; pool: string; onShowFormula: ShowFormula }) {
   const { definition: d, paper_comparison: paper, notes, display_context: ctx } = report;
   const analysis = report.analysis_by_pool[pool];
   const hasPaper = paper.comparison.some((r) => r.paper !== null);
@@ -33,8 +36,11 @@ export default function DefinitionPerformance({ report, pool }: { report: Factor
       </section>
 
       <section className="card">
-        <h2>因子定义</h2>
-        <pre className="formula">{d.formula}</pre>
+        <div className="card-head">
+          <h2>因子定义</h2>
+          <FormulaLink section="preprocessing" onShow={onShowFormula}>查看预处理与 Neutralization 公式</FormulaLink>
+        </div>
+        <FactorFormula definition={d} />
         <dl className="spec">
           <dt>输入字段</dt><dd>{d.input_field}</dd>
           <dt>数据窗口</dt><dd>{d.window}</dd>
@@ -63,7 +69,11 @@ export default function DefinitionPerformance({ report, pool }: { report: Factor
             </tbody>
           </table>
         </div>
-        <p className="caption">论文包含的全部股票池；不随上方分析市场切换。</p>
+        <p className="caption">论文包含的全部股票池；不随上方分析市场切换。多空收益为月均收益 × 12（算术年化）。</p>
+        <div className="formula-links">
+          <FormulaLink section="ic" onShow={onShowFormula}>Rank IC / ICIR 公式</FormulaLink>
+          <FormulaLink section="returns" onShow={onShowFormula}>分组与收益公式</FormulaLink>
+        </div>
       </section>
 
       <section className="card">
@@ -78,6 +88,7 @@ export default function DefinitionPerformance({ report, pool }: { report: Factor
           {chartNote(ctx, "deciles", analysis.pool_display_name)}
           {spread && ` 多空组合（G10−G1）算术年化 ${pct(spread.excess_annualized)}，有效月份 ${spread.valid_month_count}；benchmark在价差中相互抵消。`}
         </p>
+        <FormulaLink section="returns" onShow={onShowFormula}>查看十档、benchmark 与算术年化公式</FormulaLink>
       </section>
 
       <section className="card">
@@ -106,6 +117,7 @@ export default function DefinitionPerformance({ report, pool }: { report: Factor
             ? "相对差 = (复现 − 原文) ÷ |原文|。未做任何参数调整以贴近原文。"
             : "原文对该因子只有定性结论，没有可核对的数值 benchmark，因此不计算复现差异；原文列显示“—”。"}
         </p>
+        <FormulaLink section="comparison" onShow={onShowFormula}>查看论文差异与市场参考口径</FormulaLink>
       </section>
 
       <section className="card">

@@ -1,14 +1,23 @@
 import { useState } from "react";
 import SingleFactorPage from "./modules/single_factor/SingleFactorPage";
+import CompositePage from "./modules/composite_backtest/CompositePage";
+import RelationshipsPage from "./modules/factor_relationships/RelationshipsPage";
 
 const MODULES = [
   { id: "single_factor", name: "单因子回测", description: "单因子的定义、IC、分组收益、稳定性和风险。", ready: true },
-  { id: "factor_relationships", name: "因子相互解释", description: "因子相关性、增量解释力、聚类和冗余分析。", ready: false },
+  { id: "factor_relationships", name: "因子相互解释", description: "因子信号、收益、IC 与选股名单的相关性观察。", ready: true },
   { id: "long_only_backtest", name: "Long-only回测", description: "单因子多头组合的基准超额、换手、成本和回撤。", ready: false },
-  { id: "composite_backtest", name: "组合因子回测", description: "多因子合成、权重、组合表现和归因。", ready: false },
+  { id: "composite_backtest", name: "组合因子回测", description: "D01 与原文框架下的删减版组合（C01–C13）。", ready: true },
   { id: "live_composite", name: "组合因子实盘表现", description: "组合因子的最新信号和样本外表现。", ready: false },
   { id: "live_long_only", name: "Long-only实盘表现", description: "实际多头组合的持仓、净值、交易和归因。", ready: false },
 ];
+
+// Each ready module routes to its own page; there is no fallback to another module's page.
+const PAGES: Record<string, JSX.Element> = {
+  single_factor: <SingleFactorPage />,
+  factor_relationships: <RelationshipsPage />,
+  composite_backtest: <CompositePage />,
+};
 
 export default function App() {
   const [active, setActive] = useState(MODULES[0].id);
@@ -32,8 +41,8 @@ export default function App() {
         ))}
       </nav>
 
-      {module.ready ? (
-        <SingleFactorPage />
+      {module.ready && PAGES[module.id] ? (
+        PAGES[module.id]
       ) : (
         <section className="card placeholder">
           <h2>{module.name}</h2>

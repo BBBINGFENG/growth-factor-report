@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import DefinitionPerformance from "./DefinitionPerformance";
 import StabilityRisk from "./StabilityRisk";
+import ResearchScopeNotice from "./ResearchScopeNotice";
+import CalculationMethods, { type FormulaTarget } from "./CalculationMethods";
+import type { FormulaSectionId } from "./methodologyDefinitions";
 import { BASIS_CN, METHOD_CN, THEME_CN, loadCatalog, loadFactor, type CatalogEntry, type FactorReport, type PoolAnalysis } from "./data";
 
-type Tab = "core" | "stability";
+type Tab = "core" | "stability" | "formulas";
 const ALL = "";
 
 // First to last month with a valid long-short return in the selected pool;
@@ -27,6 +30,7 @@ export default function SingleFactorPage() {
   const [selected, setSelected] = useState("");
   const [report, setReport] = useState<FactorReport | null>(null);
   const [tab, setTab] = useState<Tab>("core");
+  const [formulaTarget, setFormulaTarget] = useState<FormulaTarget | null>(null);
   const [pool, setPool] = useState("");
   const [error, setError] = useState("");
 
@@ -69,6 +73,11 @@ export default function SingleFactorPage() {
   const ctx = report?.display_context;
   const pools = report?.provenance.analysis_pools ?? [];
 
+  function showFormula(section: FormulaSectionId) {
+    setFormulaTarget((previous) => ({ section, request: (previous?.request ?? 0) + 1 }));
+    setTab("formulas");
+  }
+
   return (
     <>
       <div className="filters">
@@ -101,6 +110,8 @@ export default function SingleFactorPage() {
           </select>
         </label>
       </div>
+
+      <ResearchScopeNotice />
 
       {error && <p className="error">{error}</p>}
 
@@ -143,17 +154,15 @@ export default function SingleFactorPage() {
             </div>
           )}
 
-          <nav className="tabs">
+          <nav className="tabs" aria-label="单因子分析视图">
             <button className={tab === "core" ? "active" : ""} onClick={() => setTab("core")}>定义与核心表现</button>
             <button className={tab === "stability" ? "active" : ""} onClick={() => setTab("stability")}>稳定性与风险</button>
+            <button className={tab === "formulas" ? "active" : ""} onClick={() => { setFormulaTarget(null); setTab("formulas"); }}>计算公式与口径</button>
           </nav>
 
-          {analysis &&
-            (tab === "core" ? (
-              <DefinitionPerformance report={report} pool={pool} />
-            ) : (
-              <StabilityRisk report={report} pool={pool} />
-            ))}
+          {analysis && tab === "core" && <DefinitionPerformance report={report} pool={pool} onShowFormula={showFormula} />}
+          {analysis && tab === "stability" && <StabilityRisk report={report} pool={pool} onShowFormula={showFormula} />}
+          {analysis && tab === "formulas" && <CalculationMethods report={report} pool={pool} target={formulaTarget} onShow={showFormula} />}
         </>
       )}
 

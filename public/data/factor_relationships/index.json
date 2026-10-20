@@ -1,0 +1,707 @@
+{
+ "schema_version": 2,
+ "run_id": "20261019T184834Z",
+ "run": "artifacts/factor_relationships/20261019T184834Z",
+ "run_manifest_sha256": "fc402c9065e8291ad931abfa0cef992d499991252e29a854253231398ef89332",
+ "baseline_run": "artifacts/factor_relationships/20261018T204417Z",
+ "config": {
+  "periods": {
+   "before_2021": "signal / entry date < 2021-01-01",
+   "since_2021": "signal / entry date >= 2021-01-01"
+  },
+  "signal_methods": [
+   "pearson",
+   "spearman",
+   "kendall"
+  ],
+  "default_method": "spearman",
+  "min_stocks": 30,
+  "return_min_months": 24,
+  "rolling_windows": [
+   24,
+   36
+  ],
+  "default_window": 36,
+  "rolling_min_months": 24,
+  "group_pairs": [
+   "G10-G10",
+   "G1-G1",
+   "G10-G1",
+   "G1-G10"
+  ],
+  "period_labels": {
+   "before_2021": "2021年前",
+   "since_2021": "2021年起"
+  },
+  "boundary": "2021-01-01"
+ },
+ "sections": [
+  {
+   "id": "signal",
+   "title": "① 因子信号相关",
+   "chart": "matrix",
+   "description": "本图计算（Spearman）：每个信号月先在双方共同股票内分别把两个因子排名（并列取平均秩），再对两组秩计算 Pearson 相关，最后把所选期间内有效月份的系数等权平均。",
+   "tex": "\\begin{gathered}q^{A}_{i,t}=\\operatorname{rank}_{\\mathcal{C}_t}\\!\\left(s^{A}_{i,t}\\right)\\\\[0.8em] \\rho^{\\mathrm{S}}_{AB,t}=\\frac{\\sum_{i\\in\\mathcal{C}_t}\\left(q^{A}_{i,t}-\\bar{q}_{t}\\right)\\left(q^{B}_{i,t}-\\bar{q}_{t}\\right)}{\\sqrt{\\sum_{i\\in\\mathcal{C}_t}\\left(q^{A}_{i,t}-\\bar{q}_{t}\\right)^{2}}\\,\\sqrt{\\sum_{i\\in\\mathcal{C}_t}\\left(q^{B}_{i,t}-\\bar{q}_{t}\\right)^{2}}}\\\\[1.2em]\\bar\\rho^{(m)}_{AB,P}=\\frac{1}{\\left|\\mathcal{T}_P\\right|}\\sum_{t\\in\\mathcal{T}_P}\\rho^{(m)}_{AB,t}\\end{gathered}",
+   "symbols": [
+    {
+     "tex": "s^{A}_{i,t}",
+     "meaning": "股票 i 在信号月 t 的信号：单因子为方向统一后的实际评估信号，组合为冻结组合分数"
+    },
+    {
+     "tex": "\\mathcal{C}_{t},\\ n_t",
+     "meaning": "当月两个因子都有有效值的股票及其数量；少于 30 只或任一信号无差异时，该月系数缺失"
+    },
+    {
+     "tex": "q^{A}_{i,t}",
+     "meaning": "股票 i 在当月共同股票内按因子 A 的排名（1 到当月共同股票数）；并列股票取平均秩，不使用全市场排名"
+    },
+    {
+     "tex": "\\bar{q}_{t}",
+     "meaning": "秩的均值，等于（当月共同股票数 + 1）÷ 2，两个因子相同"
+    },
+    {
+     "tex": "\\rho^{(m)}_{AB,t}",
+     "meaning": "第 t 月的系数，即上式的 Spearman 系数；m 表示所选方法"
+    },
+    {
+     "tex": "\\mathcal{T}_P",
+     "meaning": "所选期间（2021年前或2021年起）内该月系数有效的月份；矩阵是月度系数的等权平均，不是把所有股票月份混在一起算一次"
+    }
+   ],
+   "methods": {
+    "pearson": {
+     "description": "本图计算（Pearson）：每个信号月在两个因子都有有效值的股票上，用协方差除以两边标准差得到横截面相关系数，再把所选期间内有效月份的系数等权平均。",
+     "tex": "\\begin{gathered}\\rho^{\\mathrm{P}}_{AB,t}=\\frac{\\sum_{i\\in\\mathcal{C}_t}\\left(s^{A}_{i,t}-\\bar{s}^{A}_{t}\\right)\\left(s^{B}_{i,t}-\\bar{s}^{B}_{t}\\right)}{\\sqrt{\\sum_{i\\in\\mathcal{C}_t}\\left(s^{A}_{i,t}-\\bar{s}^{A}_{t}\\right)^{2}}\\,\\sqrt{\\sum_{i\\in\\mathcal{C}_t}\\left(s^{B}_{i,t}-\\bar{s}^{B}_{t}\\right)^{2}}}\\\\[1.2em]\\bar\\rho^{(m)}_{AB,P}=\\frac{1}{\\left|\\mathcal{T}_P\\right|}\\sum_{t\\in\\mathcal{T}_P}\\rho^{(m)}_{AB,t}\\end{gathered}",
+     "symbols": [
+      {
+       "tex": "s^{A}_{i,t}",
+       "meaning": "股票 i 在信号月 t 的信号：单因子为方向统一后的实际评估信号，组合为冻结组合分数"
+      },
+      {
+       "tex": "\\mathcal{C}_{t},\\ n_t",
+       "meaning": "当月两个因子都有有效值的股票及其数量；少于 30 只或任一信号无差异时，该月系数缺失"
+      },
+      {
+       "tex": "\\bar{s}^{A}_{t}",
+       "meaning": "因子 A 在共同股票上的截面均值"
+      },
+      {
+       "tex": "\\rho^{(m)}_{AB,t}",
+       "meaning": "第 t 月的系数，即上式的 Pearson 系数；m 表示所选方法"
+      },
+      {
+       "tex": "\\mathcal{T}_P",
+       "meaning": "所选期间（2021年前或2021年起）内该月系数有效的月份；矩阵是月度系数的等权平均，不是把所有股票月份混在一起算一次"
+      }
+     ]
+    },
+    "spearman": {
+     "description": "本图计算（Spearman）：每个信号月先在双方共同股票内分别把两个因子排名（并列取平均秩），再对两组秩计算 Pearson 相关，最后把所选期间内有效月份的系数等权平均。",
+     "tex": "\\begin{gathered}q^{A}_{i,t}=\\operatorname{rank}_{\\mathcal{C}_t}\\!\\left(s^{A}_{i,t}\\right)\\\\[0.8em] \\rho^{\\mathrm{S}}_{AB,t}=\\frac{\\sum_{i\\in\\mathcal{C}_t}\\left(q^{A}_{i,t}-\\bar{q}_{t}\\right)\\left(q^{B}_{i,t}-\\bar{q}_{t}\\right)}{\\sqrt{\\sum_{i\\in\\mathcal{C}_t}\\left(q^{A}_{i,t}-\\bar{q}_{t}\\right)^{2}}\\,\\sqrt{\\sum_{i\\in\\mathcal{C}_t}\\left(q^{B}_{i,t}-\\bar{q}_{t}\\right)^{2}}}\\\\[1.2em]\\bar\\rho^{(m)}_{AB,P}=\\frac{1}{\\left|\\mathcal{T}_P\\right|}\\sum_{t\\in\\mathcal{T}_P}\\rho^{(m)}_{AB,t}\\end{gathered}",
+     "symbols": [
+      {
+       "tex": "s^{A}_{i,t}",
+       "meaning": "股票 i 在信号月 t 的信号：单因子为方向统一后的实际评估信号，组合为冻结组合分数"
+      },
+      {
+       "tex": "\\mathcal{C}_{t},\\ n_t",
+       "meaning": "当月两个因子都有有效值的股票及其数量；少于 30 只或任一信号无差异时，该月系数缺失"
+      },
+      {
+       "tex": "q^{A}_{i,t}",
+       "meaning": "股票 i 在当月共同股票内按因子 A 的排名（1 到当月共同股票数）；并列股票取平均秩，不使用全市场排名"
+      },
+      {
+       "tex": "\\bar{q}_{t}",
+       "meaning": "秩的均值，等于（当月共同股票数 + 1）÷ 2，两个因子相同"
+      },
+      {
+       "tex": "\\rho^{(m)}_{AB,t}",
+       "meaning": "第 t 月的系数，即上式的 Spearman 系数；m 表示所选方法"
+      },
+      {
+       "tex": "\\mathcal{T}_P",
+       "meaning": "所选期间（2021年前或2021年起）内该月系数有效的月份；矩阵是月度系数的等权平均，不是把所有股票月份混在一起算一次"
+      }
+     ]
+    },
+    "kendall": {
+     "description": "本图计算（Kendall tau-b）：每个信号月在共同股票中两两比较股票对，看两个因子的排序方向是否一致，并对并列做修正，最后把所选期间内有效月份的系数等权平均。",
+     "tex": "\\begin{gathered}\\tau^{b}_{AB,t}=\\frac{n_c-n_d}{\\sqrt{\\left(n_0-n_1\\right)\\left(n_0-n_2\\right)}}\\\\[0.8em] n_0=\\frac{n_t\\left(n_t-1\\right)}{2},\\quad n_1=\\sum_{k}\\frac{u_k\\left(u_k-1\\right)}{2},\\quad n_2=\\sum_{l}\\frac{v_l\\left(v_l-1\\right)}{2}\\\\[1.2em]\\bar\\rho^{(m)}_{AB,P}=\\frac{1}{\\left|\\mathcal{T}_P\\right|}\\sum_{t\\in\\mathcal{T}_P}\\rho^{(m)}_{AB,t}\\end{gathered}",
+     "symbols": [
+      {
+       "tex": "s^{A}_{i,t}",
+       "meaning": "股票 i 在信号月 t 的信号：单因子为方向统一后的实际评估信号，组合为冻结组合分数"
+      },
+      {
+       "tex": "\\mathcal{C}_{t},\\ n_t",
+       "meaning": "当月两个因子都有有效值的股票及其数量；少于 30 只或任一信号无差异时，该月系数缺失"
+      },
+      {
+       "tex": "n_c",
+       "meaning": "排序一致的股票对数：两只股票在 A 与 B 上的高低方向相同"
+      },
+      {
+       "tex": "n_d",
+       "meaning": "排序不一致的股票对数：在 A 上高、在 B 上低，或相反"
+      },
+      {
+       "tex": "n_0",
+       "meaning": "共同股票两两配对的总对数"
+      },
+      {
+       "tex": "u_k,\\ v_l",
+       "meaning": "因子 A 第 k 组（或因子 B 第 l 组）相同取值包含的股票数"
+      },
+      {
+       "tex": "n_1,\\ n_2",
+       "meaning": "因子 A、B 各自因取值并列而无法比较高低的股票对数，用于并列修正"
+      },
+      {
+       "tex": "\\rho^{(m)}_{AB,t}",
+       "meaning": "第 t 月的系数，即上式的 Kendall tau-b 系数；m 表示所选方法"
+      },
+      {
+       "tex": "\\mathcal{T}_P",
+       "meaning": "所选期间（2021年前或2021年起）内该月系数有效的月份；矩阵是月度系数的等权平均，不是把所有股票月份混在一起算一次"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "returns",
+   "title": "② 多空收益相关",
+   "chart": "matrix",
+   "description": "本图计算：两个因子冻结的月频 E1 多空收益（G10−G1）在双方共同有效月份上的 Pearson 相关。",
+   "tex": "\\mathrm{LS}^{A}_{t}=R^{A}_{\\mathrm{G10},t}-R^{A}_{\\mathrm{G1},t},\\qquad r_{AB}=\\frac{\\sum_{t}\\left(\\mathrm{LS}^{A}_{t}-\\overline{\\mathrm{LS}}^{A}\\right)\\left(\\mathrm{LS}^{B}_{t}-\\overline{\\mathrm{LS}}^{B}\\right)}{\\sqrt{\\sum_{t}\\left(\\mathrm{LS}^{A}_{t}-\\overline{\\mathrm{LS}}^{A}\\right)^{2}}\\,\\sqrt{\\sum_{t}\\left(\\mathrm{LS}^{B}_{t}-\\overline{\\mathrm{LS}}^{B}\\right)^{2}}}",
+   "symbols": [
+    {
+     "tex": "R^{A}_{\\mathrm{G10},t},\\,R^{A}_{\\mathrm{G1},t}",
+     "meaning": "信号月 t 建仓、到下一信号月开盘的 E1 组内等权收益（最高组、最低组）"
+    },
+    {
+     "tex": "t",
+     "meaning": "所选期间内双方多空收益都有效的月份；至少 24 个且双方都有变化，否则缺失；不用累计净值，缺失不补零"
+    }
+   ]
+  },
+  {
+   "id": "group",
+   "title": "③ 多头 / 低分组收益相关",
+   "chart": "rolling",
+   "description": "本图计算：所选分组配对的月度分组收益在滚动窗口内的 Pearson 相关；G1 是低分组原始收益，不等于实际做空收益。",
+   "tex": "\\rho^{(W)}_{AB,t}=\\operatorname{corr}\\!\\left(R^{A}_{g_A,\\tau},\\,R^{B}_{g_B,\\tau}\\right)_{\\tau=t-W+1,\\dots,t},\\qquad g_A,g_B\\in\\{\\mathrm{G10},\\mathrm{G1}\\}",
+   "symbols": [
+    {
+     "tex": "R^{A}_{g,\\tau}",
+     "meaning": "冻结的分组月收益（G10 为最高组；G1 为低分组原始收益，不含融券、资金或交易执行假设）"
+    },
+    {
+     "tex": "W",
+     "meaning": "滚动窗口：连续 W 个日历信号月（24 或 36），窗口完全在同一分期内；窗口内至少 24 个共同有效月且双方有变化，否则缺失"
+    }
+   ]
+  },
+  {
+   "id": "ic",
+   "title": "④ IC 共同变化",
+   "chart": "rolling",
+   "description": "本图计算：两个因子各自正式月度 Rank IC 序列在滚动窗口内的 Pearson 相关。它是两条 IC 序列之间的相关，不是 Rank IC 或 ICIR。",
+   "tex": "\\mathrm{IC}^{A}_{t}=\\operatorname{RankCorr}\\!\\left(s^{A}_{i,t},\\,r_{i,t\\to t+1}\\right),\\qquad \\rho^{(W)}_{AB,t}=\\operatorname{corr}\\!\\left(\\mathrm{IC}^{A}_{\\tau},\\,\\mathrm{IC}^{B}_{\\tau}\\right)_{\\tau=t-W+1,\\dots,t}",
+   "symbols": [
+    {
+     "tex": "\\mathrm{IC}^{A}_{t}",
+     "meaning": "单月 Rank IC：方向统一后的信号与 E1 收益的截面秩相关；有效股票少于 30 只的月份剔除"
+    },
+    {
+     "tex": "r_{i,t\\to t+1}",
+     "meaning": "E1 收益；双方的正式 IC 各自在自己的有效股票上计算，股票样本可能不同"
+    },
+    {
+     "tex": "\\rho^{(W)}_{AB,t}",
+     "meaning": "两条 IC 序列在窗口内的相关；窗口规则与③相同"
+    }
+   ]
+  },
+  {
+   "id": "overlap",
+   "title": "⑤ 选股名单重合",
+   "chart": "overlap",
+   "description": "本图计算：每个信号月两个因子目标分组名单的 Jaccard 相似度，即交集股票数除以并集股票数。名单是原分组算法的目标名单，不是实际成交持仓。",
+   "tex": "J_{AB,t}=\\frac{\\left|L^{A}_{g_A,t}\\cap L^{B}_{g_B,t}\\right|}{\\left|L^{A}_{g_A,t}\\cup L^{B}_{g_B,t}\\right|}",
+   "symbols": [
+    {
+     "tex": "L^{A}_{g,t}",
+     "meaning": "因子 A 在信号月 t 的 G10 或 G1 名单：方向统一后按信号升序、并列按代码稳定排序分十档；分组只用信号，不因未来收益缺失而剔除"
+    },
+    {
+     "tex": "J_{AB,t}",
+     "meaning": "取值 0–100%；任一侧没有有效名单时记为不可比较（不是 100%）"
+    }
+   ]
+  }
+ ],
+ "notice": "数据观察页：只展示相关性与重合度，不筛选因子、不调整组合权重、不做收益归因或聚类结论。低相关不等于统计独立，高相关不等于应删除。单因子与组合属于不同预处理，分两种模式查看，不混入同一矩阵。默认 A/B 只是集合内编号最前的两个对象，不代表推荐。",
+ "sets": [
+  {
+   "id": "category_traditional_growth",
+   "mode": "single_factor",
+   "name_cn": "传统成长",
+   "file": "sets/category_traditional_growth.json",
+   "members": [
+    {
+     "id": "F01",
+     "name_cn": "营业收入同比增速·单季度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F03",
+     "name_cn": "归母净利润同比增速·单季度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F37",
+     "name_cn": "毛利润同比增速·单季度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F38",
+     "name_cn": "营业利润同比增速·单季度",
+     "role": null,
+     "role_note": null
+    }
+   ],
+   "default_members": [
+    "F01",
+    "F03",
+    "F37",
+    "F38"
+   ],
+   "comparable": true
+  },
+  {
+   "id": "category_growth_path",
+   "mode": "single_factor",
+   "name_cn": "成长路径",
+   "file": "sets/category_growth_path.json",
+   "members": [
+    {
+     "id": "F05",
+     "name_cn": "净利润位移路程比",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F06",
+     "name_cn": "营业收入位移路程比",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F07",
+     "name_cn": "总资产位移路程比",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F08",
+     "name_cn": "净利润上涨次数占比",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F09",
+     "name_cn": "营业收入上涨次数占比",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F10",
+     "name_cn": "总资产上涨次数占比",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F11",
+     "name_cn": "净利润路径拟合程度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F12",
+     "name_cn": "营业收入路径拟合程度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F13",
+     "name_cn": "总资产路径拟合程度",
+     "role": null,
+     "role_note": null
+    }
+   ],
+   "default_members": [
+    "F05",
+    "F06",
+    "F07",
+    "F08",
+    "F09",
+    "F10",
+    "F11",
+    "F12",
+    "F13"
+   ],
+   "comparable": true
+  },
+  {
+   "id": "category_growth_momentum",
+   "mode": "single_factor",
+   "name_cn": "成长动能",
+   "file": "sets/category_growth_momentum.json",
+   "members": [
+    {
+     "id": "F14",
+     "name_cn": "净利润成长加速度·TTM",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F15",
+     "name_cn": "营业收入成长加速度·TTM",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F16",
+     "name_cn": "总资产成长加速度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F17",
+     "name_cn": "净利润Rank成长加速度·TTM",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F18",
+     "name_cn": "营业收入Rank成长加速度·TTM",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F19",
+     "name_cn": "总资产Rank成长加速度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F20",
+     "name_cn": "净利润同比增速时序分位点",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F21",
+     "name_cn": "营业收入同比增速时序分位点",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F22",
+     "name_cn": "总资产同比增速时序分位点",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F23",
+     "name_cn": "净利润同比增速时序回归系数",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F24",
+     "name_cn": "营业收入同比增速时序回归系数",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F25",
+     "name_cn": "总资产同比增速时序回归系数",
+     "role": null,
+     "role_note": null
+    }
+   ],
+   "default_members": [
+    "F14",
+    "F15",
+    "F16",
+    "F17",
+    "F18",
+    "F19",
+    "F20",
+    "F21",
+    "F22",
+    "F23",
+    "F24",
+    "F25"
+   ],
+   "comparable": true
+  },
+  {
+   "id": "category_forward_growth",
+   "mode": "single_factor",
+   "name_cn": "未来成长",
+   "file": "sets/category_forward_growth.json",
+   "members": [
+    {
+     "id": "F26",
+     "name_cn": "回归预测净利润增速",
+     "role": null,
+     "role_note": null
+    }
+   ],
+   "default_members": [
+    "F26"
+   ],
+   "comparable": false
+  },
+  {
+   "id": "category_earnings_surprise",
+   "mode": "single_factor",
+   "name_cn": "超预期",
+   "file": "sets/category_earnings_surprise.json",
+   "members": [
+    {
+     "id": "F29",
+     "name_cn": "SUE标准化预期外盈利",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F30",
+     "name_cn": "SUR标准化预期外收入",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F31",
+     "name_cn": "JOR(MAX)",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F32",
+     "name_cn": "JOR(LAST)",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F33",
+     "name_cn": "正式财报超预告快报预期",
+     "role": null,
+     "role_note": null
+    }
+   ],
+   "default_members": [
+    "F29",
+    "F30",
+    "F31",
+    "F32",
+    "F33"
+   ],
+   "comparable": true
+  },
+  {
+   "id": "category_growth_valuation",
+   "mode": "single_factor",
+   "name_cn": "成长性价比（PEG）",
+   "file": "sets/category_growth_valuation.json",
+   "members": [
+    {
+     "id": "F35",
+     "name_cn": "PEG·TTM",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F36",
+     "name_cn": "PEG·单季度",
+     "role": null,
+     "role_note": null
+    }
+   ],
+   "default_members": [
+    "F35",
+    "F36"
+   ],
+   "comparable": true
+  },
+  {
+   "id": "category_multidimensional_growth",
+   "mode": "single_factor",
+   "name_cn": "多维成长",
+   "file": "sets/category_multidimensional_growth.json",
+   "members": [
+    {
+     "id": "F39",
+     "name_cn": "CFO同比增速·TTM",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F41",
+     "name_cn": "CFO/营业收入同比变化·TTM",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F42",
+     "name_cn": "总资产周转率同比变化·单季度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F43",
+     "name_cn": "固定资产周转率同比变化·单季度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F44",
+     "name_cn": "存货周转率同比变化·单季度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F45",
+     "name_cn": "毛利率同比增速·单季度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F46",
+     "name_cn": "净利率同比增速·单季度",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "F47",
+     "name_cn": "Delta ROE·单季度",
+     "role": null,
+     "role_note": null
+    }
+   ],
+   "default_members": [
+    "F39",
+    "F41",
+    "F42",
+    "F43",
+    "F44",
+    "F45",
+    "F46",
+    "F47"
+   ],
+   "comparable": true
+  },
+  {
+   "id": "composites",
+   "mode": "composite",
+   "name_cn": "组合因子",
+   "file": "sets/composites.json",
+   "members": [
+    {
+     "id": "C01",
+     "name_cn": "成长路径",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C02",
+     "name_cn": "成长动能",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C03",
+     "name_cn": "未来成长（删减版）",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C04",
+     "name_cn": "超预期（删减版）",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C08",
+     "name_cn": "综合成长性价比",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C09",
+     "name_cn": "多维成长（删减版）",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C10",
+     "name_cn": "传统成长",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C11",
+     "name_cn": "剔除低基数后的传统成长",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C12",
+     "name_cn": "综合成长补充",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "C13",
+     "name_cn": "剔除传统成长后的残差",
+     "role": null,
+     "role_note": null
+    },
+    {
+     "id": "D01",
+     "name_cn": "综合估值（受限研究基线）",
+     "role": "limited_research_baseline",
+     "role_note": "受限研究基线：限定范围独立计算审查通过；不证明严格 PIT"
+    },
+    {
+     "id": "C06",
+     "name_cn": "成长性价比（中间项）",
+     "role": "intermediate",
+     "role_note": "中间项：C08 的输入，不是独立的成长维度"
+    },
+    {
+     "id": "C07",
+     "name_cn": "成长动能性价比（中间项）",
+     "role": "intermediate",
+     "role_note": "中间项：C08 的输入，不是独立的成长维度"
+    }
+   ],
+   "default_members": [
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "C08",
+    "C09"
+   ],
+   "comparable": true
+  }
+ ]
+}

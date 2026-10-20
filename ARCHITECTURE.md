@@ -1,7 +1,7 @@
 # 量化研究网站架构与数据发布规范
 
 **状态**：当前有效规范  
-**更新日期**：2026-09-29  
+**更新日期**：2026-10-18
 **适用范围**：回测项目的网站数据发布、前端文件结构和后续模块扩展。
 
 本文档是网站架构的唯一规范。后续开发应先读本文档，不得依赖对话记忆自行改变结构。如需改变架构，应先修订本文档，再修改代码。
@@ -27,7 +27,7 @@
 | 组合因子实盘表现 | `live_composite` | 组合因子的最新信号和样本外表现 |
 | Long-only实盘表现 | `live_long_only` | 实际多头组合持仓、净值、交易和归因 |
 
-当前只实现`single_factor`。其他模块在没有真实内容前只在网站导航中显示“待开发”，不创建空数据目录、占位JSON或虚构图表。
+当前实现`single_factor`、`composite_backtest`（D01 与 C01–C13，2026-10-18 接入）与`factor_relationships`（数据观察页，2026-10-19 接入）。其他模块在没有真实内容前只在网站导航中显示“待开发”，不创建空数据目录、占位JSON或虚构图表。
 
 ## 3. 目标文件结构
 
@@ -37,18 +37,44 @@ website/
 ├── src/
 │   ├── App.tsx
 │   ├── modules/
+│   │   ├── factor_relationships/
+│   │   │   ├── RelationshipsPage.tsx
+│   │   │   ├── MatrixChart.tsx
+│   │   │   ├── FormulaPanel.tsx
+│   │   │   └── data.ts
+│   │   ├── composite_backtest/
+│   │   │   ├── CompositePage.tsx
+│   │   │   ├── MethodTab.tsx
+│   │   │   ├── PerformanceTab.tsx
+│   │   │   ├── CoverageTab.tsx
+│   │   │   ├── StatusTab.tsx
+│   │   │   └── data.ts
 │   │   └── single_factor/
 │   │       ├── SingleFactorPage.tsx
+│   │       ├── ResearchScopeNotice.tsx
+│   │       ├── researchScope.json
 │   │       ├── DefinitionPerformance.tsx
 │   │       ├── StabilityRisk.tsx
+│   │       ├── DailyRisk.tsx
+│   │       ├── CalculationMethods.tsx
+│   │       ├── FactorFormula.tsx
+│   │       ├── methodologyDefinitions.ts
 │   │       └── data.ts
 │   └── shared/
 │       ├── FactorChart.tsx
+│       ├── MathFormula.tsx
 │       ├── format.ts
 │       └── types.ts
 ├── public/data/
 │   ├── shared/benchmarks/
-│   │   └── csi300_monthly_open_to_open.json
+│   │   ├── csi300_monthly_open_to_open.json
+│   │   └── csi300_daily_open_close.json
+│   ├── factor_relationships/
+│   │   ├── index.json
+│   │   └── sets/<set_id>.json
+│   ├── composite_backtest/
+│   │   ├── catalog.json
+│   │   └── items/<D01|Cxx>.json
 │   └── single_factor/
 │       ├── catalog.json
 │       └── factors/
@@ -103,7 +129,15 @@ Composite 不占用 Factor 01、02…的连续单因子编号，改用`Composite
 | C12 | 综合成长补充因子 | 六个综合模块等权融合 |
 | C13 | 剔除传统成长后残差因子 | 对C12使用C10做横截面回归取残差 |
 
-系列一的`综合估值因子`是C06–C08的外部 composite dependency，记为`Composite Dependency D01`，不占用系列六的Cxx编号。当前只实现`single_factor`，上述C01–C13均推迟到`composite_backtest`模块，不加入单因子网站catalog。
+系列一的`综合估值因子`是C06–C08的外部 composite dependency，记为`Composite Dependency D01`，不占用系列六的Cxx编号。C01–C13 与 D01 在`composite_backtest`模块展示（见 §7.1），不加入单因子网站catalog；C05 不在当前范围。
+
+### 4.3 当前复现范围（2026-10-16 用户确认）
+
+- Factor 27、28、34、40从当前有效研究清单与组合成分中固定移除，不再等待数据或接口恢复后自动补跑；已有规格和代码仅作历史记录保留，不删除共享数据或历史结果。
+- `single_factor/researchScope.json`记录这一范围决定，`ResearchScopeNotice`在单因子页顶部持续展示四个因子的编号、名称，以及对C03、C04、C09、C12/C13的影响。范围元数据与冻结回测结果分开，不添加虚构的catalog条目或绩效，也不重排其他Factor编号。
+- 用户确认采用删减版：保留原文组合类别与合成层级，在每层固定剔除上述成分后，对剩余组件重新等权；只剩一个组件时权重为100%，类别仍保留。C03因此保留为仅F26的单组件删减版；C04保留F29/F30/F32/F33；C09保留现金流、效率、盈利能力三个维度，其中现金流仅F39/F41。
+- 结构性成分删除不等于逐股票、逐月的缺失值处理。用户进一步确认：每个原有层级对有限值组件等权，全部缺失则本层缺失，记录组件数与覆盖率，不补0或伪造信号。路径采用F05–13，动能采用F17–25并保留F25；原文未明确的输入预处理采用MAD去极值、z-score、仅市值中性化、行业百分位，标记为implementation choice。D01综合估值保留并优先实现，仍须单独验收，不擅自改用PEG替代。研究规格见`因子规格/组合复现_执行口径.md`。
+- 后续结果标注为删减版，不冒称完整原文复现。本轮只更新范围与合成政策，不产生组合回测结果。
 
 ## 5. Standalone Factor 编号与分类
 
@@ -193,27 +227,54 @@ public/data/single_factor/factors/
 | 十档超额收益 | `decile_returns`减同股票池等权收益（`data/processed/benchmarks/pool_equal_weight/`） |
 | 论文benchmark | `benchmark_comparison`的primary分支 |
 | Monthly IC | `monthly_ic` |
-| 多空累计净值 | 冻结的月度多空收益 |
-| 年度表现与风险指标 | 冻结的月度多空收益与月度Rank IC |
+| 多空日度净值、日频回撤与日频风险指标（主展示） | 日度估值产物`artifacts/daily_valuation/<run_id>/`（月度调仓、日度收盘估值） |
+| 日月对账 | 同一日度估值产物的`monthly_reconciliation`与按E1端点的年度汇总 |
+| 月频多空净值与月频年度表现（对照） | 冻结的月度多空收益与月度Rank IC |
 | 六市场回测有效覆盖率 | `factor_panel_raw`、共享市值/行业输入、E1收益与历史PIT成分 |
 | 市值/行业暴露 | 冻结processed factor panel |
-| 沪深300市场参考 | `public/data/shared/benchmarks/csi300_monthly_open_to_open.json` |
+| 沪深300市场参考 | 月频：`csi300_monthly_open_to_open.json`；日频：`csi300_daily_open_close.json`（均在`public/data/shared/benchmarks/`） |
+| 因子公式的数学排版 | `reporting.py`生成的`definition.formula_tex`与`formula_symbols`（LaTeX，由KaTeX渲染） |
 
-因子JSON为`schema_version = 2`：`definition`与`paper_comparison`为因子级；`analysis_by_pool`只含`benchmark_comparison.csv`中`result_role == "primary"`的市场，按市场给出十档超额、Monthly IC、多空净值、年度表现和暴露；`coverage_by_pool`固定包含六个股票池；`display_context`给出页面口径和每张图表的一句说明。
+因子JSON为`schema_version = 3`（在v2基础上，`analysis_by_pool.<pool>.daily_valuation`给出日度净值、日频回撤、日频年度表现与日月对账；`definition`增加LaTeX公式）：`definition`与`paper_comparison`为因子级；`analysis_by_pool`只含`benchmark_comparison.csv`中`result_role == "primary"`的市场，按市场给出十档超额、Monthly IC、多空净值、年度表现和暴露；`coverage_by_pool`固定包含六个股票池；`display_context`给出页面口径和每张图表的一句说明。
 
 三个概念分开命名：`paper_benchmark`（论文Rank IC/ICIR/多空，只用于复现比较）、`decile_excess_return_benchmark`（同股票池等权组合，十档超额的基准）、`market_reference`（沪深300，只作市场环境参考）。
 
 `scripts/stage4_single_factor/core/reporting.py`是单因子网站汇总指标的唯一计算位置。发布脚本只调用它并写出JSON；前端只显示JSON。
 
+### 7.1 组合模块（composite_backtest）
+
+| 展示内容 | 唯一数据源 |
+|---|---|
+| 指标（月频 IC、月频多空、日频风险、年度表）、十档、覆盖率（`coverage_by_period`）、日月对账 | 当前结果接口`汇报结果汇总/当前结果/组合接口.json`（rev5，指向`组合复现审查/20261017T045530Z/composites_interface_rev5.json`） |
+| 月度 Rank IC、月度多空收益、逐月覆盖与 C12 类别数、日度净值 | 冻结 run（`artifacts/composite_runs/<run_id>/`、`artifacts/d01_runs/<run_id>/`）的`monthly_ic`、`decile_returns`、`coverage`、`valuation_points` |
+| 状态、实施选择、限制、原文对照 | `artifacts/composite_acceptance/<Cxx>/ACCEPTANCE_RECORD.json`；D01 为`RESEARCH_BASELINE_USAGE.json`与`CALCULATION_VERIFICATION_20261018.json` |
+
+研究层唯一转换位置：`scripts/stage6_composite_factors/website_export.py`（由`publish.py composite`调用）。它只重排已冻结的数值；派生的仅有月频多空累计乘积、日频回撤（`core.risk_metrics.drawdown`）和按期间的算术年化（与 Excel 同一函数`report._ls_arith`）。一致性由`scripts/stage6_composite_factors/verify_website.py`核对（网站 JSON、接口、Excel、冻结 run 四方）。
+
+页面分四个标签：构成与方法、表现与风险（月频与日频分组显示）、覆盖与样本、状态与限制；顶部固定展示组合结果的性质与限制。C06、C07 标为中间组合（C08 的输入），D01 标为外部依赖与受限研究基线。不显示“完全复现”“可交易”“严格 PIT”等表述。
+
+### 7.2 因子相互解释模块（factor_relationships）
+
+数据观察页，不筛选因子、不调整权重、不做收益归因或聚类结论。研究层唯一来源是 Stage 7 观察诊断 run（`artifacts/factor_relationships/<run_id>/`，入口`scripts.stage7_factor_relationships.observe_run`），它复用并核对冻结的 Stage 7 基线 run，读取冻结的单因子、组合与 D01 结果。网站导出与核对：`scripts/stage7_factor_relationships/website_export.py`、`verify_website.py`，由`publish.py relationships`调用。
+
+- 顶部选择分析模式（按类别看单因子 / 比较组合）、分析对象和共用的因子 A/B（默认取集合内编号最前的两个，仅为展示默认）。
+- 五个分析区纵向排列，每区左图“2021年前”、右图“2021年起”，共十张图：①因子信号相关 Matrix（Pearson/Spearman/Kendall tau-b，默认 Spearman，期间内有效月度系数的等权平均）；②月频 E1 多空收益 Pearson Matrix；③G10/G1 分组原始收益的 rolling Pearson；④正式月度 Rank IC 序列的 rolling Pearson；⑤目标分组名单的 Jaccard 重合度。
+- 每区一份公式说明（中文标题、一句说明、KaTeX 公式、符号、当前参数），左右两图共用；①按所选方法显示 Pearson（协方差除以两边标准差）、Spearman（共同样本内平均秩后的 Pearson）或 Kendall tau-b（一致/不一致对与并列修正）的公式，三者都附期间等权平均式。公式文本与参数集中在研究层导出的`index.json`，前端只显示；correlation 坐标与颜色固定 −1 到 1，Jaccard 0–100%。
+- Matrix 缺失格（`null`）由独立图层画成灰色“—”，不进入 −1..1 色阶，也不转成 0；真实 0 显示为 0.00。渲染由`website/tests/matrix_render.test.mjs`（合成矩阵，ECharts SVG 实际绘制）核对，合成数据不进入`public/data`。
+- ②的对角线来自研究层：该对象在本期至少 24 个有效月且收益有变化时为 1，否则缺失，并给出有效月份数；导出不补 1。
+- ⑤的名单计数：对象当月参与分组即名单已知（可为空），否则未知。已知时记录真实的双方数量、交集与并集（并集 = 双方数量之和 − 交集）；依赖未知名单的计数为`null`，不写 0。任一侧无有效名单时 Jaccard 为不可比较。
+- 静态数据按分析集合拆分（每个单因子类别、组合集合各一个文件），按需加载；不发布股票级 panel，不为每对因子或每月单独建文件。
+- 单因子与组合是两种模式，不混在同一矩阵；C06/C07 标为中间项，D01 标为受限研究基线；只有一个成员的类别显示“无类内比较对象”。
+
 ## 8. 公共基准
 
 沪深300价格指数是所有单因子共用的市场环境参考，不是市场中性多空组合的同风险业绩基准。
 
-- 研究层唯一输出：`data/processed/benchmarks/csi300_monthly_open_to_open.json`。
-- 网站部署副本：`website/public/data/shared/benchmarks/csi300_monthly_open_to_open.json`。
+- 研究层唯一输出：`data/processed/benchmarks/csi300_monthly_open_to_open.json`（月初开盘到下月月初开盘）与`csi300_daily_open_close.json`（每日开盘、收盘点位）。
+- 网站部署副本：`website/public/data/shared/benchmarks/`下的同名文件。
 - 网站副本必须与研究层文件字节一致。
 - 基准不复制进因子JSON，一个页面会话只请求一次。
-- 因子与基准均按月初开盘到下月月初开盘对齐，共同起点归一为1。
+- 月频对照中，因子与基准均按月初开盘到下月月初开盘对齐；日度净值中，基准使用与因子相同的估值点（起止为开盘、其余为收盘），共同起点归一为1。
 - 网站必须标注“沪深300价格指数（市场参考）”，不得写成总收益指数。
 - 沪深300不是十档收益benchmark。十档超额收益的基准是同股票池等权组合：每月该股票池PIT合格成员中E1收益有效股票的等权平均，与因子样本无关，只构建一份（`data/processed/benchmarks/pool_equal_weight/<run_id>/`），不复制进因子JSON。
 
@@ -232,7 +293,11 @@ publish.py factor --id 01
 publish.py factor --ids 01 02 03 04 05 06
 publish.py benchmark --id csi300
 publish.py all
+publish.py composite
+publish.py relationships
 ```
+
+`composite`与`relationships`都不属于`all`，分别只在组合结果接口或 Stage 7 观察诊断 run 更新后运行。
 
 它只负责读取冻结结果、转换网站JSON、更新catalog和复制公共基准。不得下载数据、运行因子、修改回测产物或生成额外审批文件。
 
@@ -260,36 +325,42 @@ publish.py all
 
 ## 11. 网站导航与当前实现
 
-顶层导航展示六个模块。`single_factor`为当前可用模块；其余五个模块显示模块名称、一句功能说明和“待开发”，不显示虚构数据。
+顶层导航展示六个模块。`single_factor`、`factor_relationships`与`composite_backtest`为当前可用模块，各自路由到独立页面；其余三个模块显示模块名称、一句功能说明和“待开发”，不显示虚构数据。
 
 单因子页面使用一套组件展示所有因子，并提供：
 
 - 按`research_theme`筛选；
 - 按`method_family`筛选；
 - 选择具体因子；
-- “定义与核心表现”和“稳定性与风险”两个标签页；
-- 有多个primary市场时，页面级分析市场选择器同时控制十档、Monthly IC、多空净值、年度表现和暴露；只有一个时显示静态市场标签；
+- “定义与核心表现”“稳定性与风险”和“计算公式与口径”三个标签页；
+- 公式页展示当前因子已有定义，以及预处理、Rank IC、ICIR、收益、日度估值与日频风险、月频风险对照、覆盖率、暴露和论文比较的公式、输入与缺失规则；相关图表提供直接跳转入口；
+- 公式统一用LaTeX书写，由`shared/MathFormula.tsx`调用KaTeX渲染（Display Mode居中，长公式用`aligned`分行，手机端公式区可横向滚动）；KaTeX字体与样式来自项目依赖，随Vite构建打包，不使用外链。中文解释、变量定义与缺失规则放在公式外；
+- 公共公式集中在`methodologyDefinitions.ts`，按研究层当前实现核对；因子定义公式由`reporting.py`生成（`formula_tex`）；`CalculationMethods.tsx`与`FactorFormula.tsx`只负责展示。公式说明不执行计算，不改变冻结结果；
+- “稳定性与风险”页的主展示为日度净值、日频回撤和由日收益计算的年化波动率与Sharpe（月度调仓、日度估值，年化交易日数A = 252），同时显示有效日数、缺价处理与日月对账；原月频净值与年度表现保留为“月频对照”。日度结果未生成的因子不显示日频区块，不把月频数据改标签为日频；
+- 公式页明确区分算术年化与CAGR、月频与日频、PEG原始定义与方向统一后的信号；中性化说明使用实际的申万2021一级行业，残差之后没有再次标准化；
+- 有多个primary市场时，页面级分析市场选择器同时控制十档、Monthly IC、日度与月频净值、年度表现、日月对账和暴露；只有一个时显示静态市场标签；
 - 覆盖率使用单独的市场选择器，一次只画一个市场。
 
 ## 12. 当前开发顺序
 
-1. Factor 1–26、29–33、35–39、41–47已验收并发布，共43个（单因子共47个）；Factor 27、28、34依赖分析师一致预期，因report_rc当前账号限额阻塞（F34代码与合成测试已完成，未登记）；Factor 40因Tushare `free_cashflow`版本冲突阻塞（代码、规格与合成测试已完成，未登记）。已验收因子不再因后续factor开发重跑。
-2. Factor 37–41共用一份`stage3_multidimensional_growth_inputs`（单季度毛利润、营业利润，TTM的CFO、自由现金流和营业收入，当期与上年同期两组值）。毛利润在同一财报版本内由营业收入减营业成本得到；Factor 41的“同比变化”是两个比率之差，CFO与营业收入必须是同一报告期。Factor 40使用Tushare `cashflow.free_cashflow`（vendor field proxy，原文未给FCF公式），同一披露版本的两行取值不一致或一行为空时按冻结规则置缺失，2020年后有效率大多低于5%，因此不运行、不发布。
-3. Factor 42–47共用一份`stage3_operating_efficiency_profitability_inputs`（单季度营业收入、营业成本、归母净利润在t与t−4，总资产、固定资产、存货、归母股东权益在t、t−1、t−4、t−5的报告期末值）。Factor 42–44与47是比率的绝对差值，Factor 45–46是利润率的相对增速；比率不乘4年化。固定资产优先`fix_assets_total`，确实为空时才用`fix_assets`；F44分子用营业收入、F47与表10 ROE Growth同式，均为项目实现选择（strong_inference），不是原文明示。
-4. Factor 31–33共用一份`stage3_report_events`（预告、快报、正式财报事件，事件JOR，预告/快报与正式值配对）。JOR采用保守T+1与50个自然日，是approximate replication；Factor 33分母`|expected|`是项目实现选择。Factor 35–36（PEG）为负向因子：论文对比使用原始定义，十档与图表使用−PEG（sign_flipped）。
-5. Factor 26–30分属三个family：`cross_sectional_growth_forecast`（26）、`analyst_revision`（27–28）、`standardized_unexpected_growth`（29–30）。Factor 26自2014-11起才有值（2009Q3以前没有总市值，回归需5年样本），2021年以前其他流动负债空值较多，覆盖率较低。
-6. Factor 27–28代码已完成，尚未运行和发布：当前Tushare账号的`report_rc`限额为每分钟1次、每小时10次、每天10次，全量历史约需数百次分页请求，无法下载；取得更高权限或其他数据源后，再下载、构建一致预期、正式运行并发布。一致预期由`report_rc`自行重建，不等同于Wind一致预期。
-7. Factor 20–25：时序分位点与时序回归系数共用同一组8期同比增速，代码上共用一份`growth_rate_history`实现；网站上分为两个`method_family`（`time_series_quantile`、`time_series_regression_coefficient`）。Factor 25原文只有定性结论，没有数值benchmark，网页原文列显示“—”，不做容差判断。
-8. 后续因子优先复用已有Stage 3产物，不重复下载数据，不重做PIT和会计转换。
-9. 每个因子只做一次正式运行，只检查新family的数学逻辑、当前factor配置和当前结果数值。
-10. 验收后使用既有`publish.py`按`--ids`发布对应JSON并更新catalog；不新增前端页面、图表组件或因子专属发布脚本。
+1. Factor 1–26、29–33、35–39、41–47已验收并发布，共43个；原47个编号中的Factor 27、28、34、40于2026-10-16经用户确认固定移出当前研究范围。历史原因分别为分析师数据依赖和自由现金流版本冲突；不再作为本轮待补因子。已验收因子不再因后续factor开发重跑。
+2. 风险指标采用“月度调仓、日度估值”：分组与调仓沿用冻结run（中性化因子、方向统一、原十档算法），在独立产物`artifacts/daily_valuation/<run_id>/`中按每日收盘估值重建多空净值（100%多/100%空、月内不再平衡），再由日收益计算波动率、Sharpe与日频回撤（A = 252）。共享日度价格缓存位于`data/processed/stage4_daily_prices/`。调仓日无开盘价的股票不建仓；持有期缺价按最近有效价格估值；下一调仓日无开盘价的持仓按结转价格结算（月度E1将其剔除，这是日月差异的唯一来源，网页给出逐年对账）。冻结的因子run、Rank IC与论文比较不变。
+3. Factor 37–41历史实现共用一份`stage3_multidimensional_growth_inputs`（单季度毛利润、营业利润，TTM的CFO、自由现金流和营业收入，当期与上年同期两组值）。毛利润在同一财报版本内由营业收入减营业成本得到；Factor 41的“同比变化”是两个比率之差，CFO与营业收入必须是同一报告期。Factor 40曾使用Tushare `cashflow.free_cashflow`（vendor field proxy，原文未给FCF公式），因版本冲突导致覆盖不足；现已移出研究范围，不运行、不发布，共享mart不删除。
+4. Factor 42–47共用一份`stage3_operating_efficiency_profitability_inputs`（单季度营业收入、营业成本、归母净利润在t与t−4，总资产、固定资产、存货、归母股东权益在t、t−1、t−4、t−5的报告期末值）。Factor 42–44与47是比率的绝对差值，Factor 45–46是利润率的相对增速；比率不乘4年化。固定资产优先`fix_assets_total`，确实为空时才用`fix_assets`；F44分子用营业收入、F47与表10 ROE Growth同式，均为项目实现选择（strong_inference），不是原文明示。
+5. Factor 31–33共用一份`stage3_report_events`（预告、快报、正式财报事件，事件JOR，预告/快报与正式值配对）。JOR采用保守T+1与50个自然日，是approximate replication；Factor 33分母`|expected|`是项目实现选择。Factor 35–36（PEG）为负向因子：论文对比使用原始定义，十档与图表使用−PEG（sign_flipped）。
+6. Factor 26–30分属三个family：`cross_sectional_growth_forecast`（26）、`analyst_revision`（27–28）、`standardized_unexpected_growth`（29–30）。Factor 26自2014-11起才有值（2009Q3以前没有总市值，回归需5年样本），2021年以前其他流动负债空值较多，覆盖率较低。
+7. Factor 27–28代码已完成，尚未运行和发布；此前受`report_rc`请求限额阻塞，现与Factor 34一起主动排除于本阶段范围。不因额度或数据源变化自动恢复，重新纳入需用户另行确认。已有一致预期实现由`report_rc`自行重建，不等同于Wind一致预期。
+8. Factor 20–25：时序分位点与时序回归系数共用同一组8期同比增速，代码上共用一份`growth_rate_history`实现；网站上分为两个`method_family`（`time_series_quantile`、`time_series_regression_coefficient`）。Factor 25原文只有定性结论，没有数值benchmark，网页原文列显示“—”，不做容差判断。
+9. 后续因子优先复用已有Stage 3产物，不重复下载数据，不重做PIT和会计转换。
+10. 每个因子只做一次正式运行，只检查新family的数学逻辑、当前factor配置和当前结果数值。
+11. 验收后使用既有`publish.py`按`--ids`发布对应JSON并更新catalog；不新增前端页面、图表组件或因子专属发布脚本。
 
 ## 13. 禁止事项
 
 - 不为81条benchmark observation创建81个文件。
 - 不在网站中保存factor panel、raw data或Parquet全量副本。
 - 不为网站修改因子definition、pipeline或已冻结结果。
-- 不在前端复制Python中的金融计算公式。
+- 不在前端实现Python中的金融指标计算；允许展示经研究代码核对的静态公式和口径说明。
 - 不创建空模块目录、空JSON、伪造图表或占位数据。
 - 不在每次网站构建时调用Tushare、Python回测或研究汇总程序。
 - 不因页面排版改动而重新生成冻结数据。

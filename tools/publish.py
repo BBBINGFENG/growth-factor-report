@@ -4,10 +4,14 @@
     python3 website/tools/publish.py factor --ids 01 02 03
     python3 website/tools/publish.py benchmark --id csi300
     python3 website/tools/publish.py all
+    python3 website/tools/publish.py composite
+    python3 website/tools/publish.py relationships --run artifacts/factor_relationships/<run_id>
 
 Factors: reads the accepted run named in each Acceptance Record and calls
 scripts/stage4_single_factor/core/reporting.py. Benchmarks: copies the shared
-processed series unchanged. Never downloads data, runs factors or writes
+processed series unchanged. Composites: D01 and C01-C13 from the current
+result interface and frozen runs via scripts/stage6_composite_factors/
+website_export.py (not part of `all`). Never downloads data, runs factors or writes
 outside website/public/data/. Unchanged files are not rewritten.
 """
 
@@ -27,9 +31,11 @@ PROJECT_ROOT = WEBSITE_DIR.parent
 DATA_DIR = WEBSITE_DIR / "public" / "data"
 SINGLE_FACTOR_DIR = DATA_DIR / "single_factor"
 SHARED_BENCHMARK_DIR = DATA_DIR / "shared" / "benchmarks"
+COMPOSITE_DIR = DATA_DIR / "composite_backtest"
+RELATIONSHIPS_DIR = DATA_DIR / "factor_relationships"
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.stage4_single_factor.core import registry  # noqa: E402
+from scripts.stage4_single_factor.core import accepted_runs as AR  # noqa: E402
 from scripts.stage4_single_factor.core import reporting  # noqa: E402
 
 # Catalog classification, as specified in website/ARCHITECTURE.md §4–5.
@@ -86,10 +92,10 @@ METHOD_FAMILY = {
     "path_fit": "path_fit",
 }
 CATALOG_BASIS = {"single_quarter": "single_quarter", "ttm": "TTM", "stock": "balance_sheet_stock", "not_applicable": "not_applicable", "event_based": "event_based"}
-BENCHMARKS = {"csi300": "csi300_monthly_open_to_open.json"}
+BENCHMARKS = {"csi300": "csi300_monthly_open_to_open.json", "csi300_daily": "csi300_daily_open_close.json"}
 REQUIRED_RUN_FILES = ["manifest.json", "benchmark_comparison.csv", "monthly_ic.parquet", "decile_returns.parquet",
                       "factor_panel_raw.parquet"]
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 def _sha256(path: Path) -> str:
@@ -114,30 +120,17 @@ def _write_if_changed(path: Path, text: str) -> bool:
 
 # ------------------------------------------------------------------ factors
 def _resolve(factor_id: str) -> tuple:
-    folders = sorted((PROJECT_ROOT / "scripts" / "stage4_single_factor").glob(f"factor_{factor_id}_*"))
-    if len(folders) != 1:
-        raise SystemExit(f"factor {factor_id}: expected one factor folder, found {len(folders)}")
-    prefix = f"scripts.stage4_single_factor.{folders[0].name}."
-    keys = [k for k in registry.list_factors() if registry.get(k)["runner"].startswith(prefix)]
-    if len(keys) != 1:
-        raise SystemExit(f"factor {factor_id}: expected one registry entry for {folders[0].name}, found {keys}")
-    return folders[0], keys[0], registry.get(keys[0])
+    try:
+        return AR.resolve(factor_id)
+    except AR.AcceptedRunError as e:
+        raise SystemExit(str(e))
 
 
 def _accepted_run(key: str, entry: dict) -> tuple:
-    record_path = PROJECT_ROOT / entry.get("acceptance_record_path", f"artifacts/factor_acceptance/{key}/ACCEPTANCE_RECORD.json")
-    record = json.loads(record_path.read_text(encoding="utf-8"))
-    if record.get("acceptance_status") != "accepted":
-        raise SystemExit(f"{key}: Acceptance Record status is {record.get('acceptance_status')!r}")
-    runs_root = PROJECT_ROOT / "artifacts" / "factor_runs" / key
-    present = [r for r in record["accepted_run_ids"] if (runs_root / r).is_dir()]
-    if len(present) != 1:
-        raise SystemExit(f"{key}: expected exactly one retained accepted run, found {present}")
-    run_dir = runs_root / present[0]
-    missing = [f for f in REQUIRED_RUN_FILES if not (run_dir / f).is_file()]
-    if missing:
-        raise SystemExit(f"{key}: accepted run {present[0]} is missing {missing}")
-    return run_dir, record, record_path
+    try:
+        return AR.accepted_run(key, entry, tuple(REQUIRED_RUN_FILES))
+    except AR.AcceptedRunError as e:
+        raise SystemExit(str(e))
 
 
 def publish_factor(factor_id: str) -> tuple:
@@ -169,6 +162,10 @@ def publish_factor(factor_id: str) -> tuple:
             "decile_excess_return_benchmark": {
                 "run": str(reporting.POOL_BENCHMARK_RUN.relative_to(PROJECT_ROOT)),
                 "manifest_sha256": _sha256(reporting.POOL_BENCHMARK_RUN / "manifest.json"),
+            },
+            "daily_valuation": {
+                "run": str(reporting.DAILY_VALUATION_RUN.relative_to(PROJECT_ROOT)),
+                "manifest_sha256": _sha256(reporting.DAILY_VALUATION_RUN / "manifest.json"),
             },
             "source_files": source_files,
         },
@@ -220,12 +217,26 @@ def update_catalog(entries: list) -> bool:
 
 
 # --------------------------------------------------------------- benchmarks
+def check_daily_benchmark(payload: dict) -> None:
+    dates, opens, closes = payload["dates"], payload["open"], payload["close"]
+    if not dates or not len(dates) == len(opens) == len(closes):
+        raise ValueError("daily benchmark arrays are empty or of different lengths")
+    if any(a >= b for a, b in zip(dates, dates[1:])):
+        raise ValueError("daily benchmark dates are not strictly increasing")
+    if any(v is None or not math.isfinite(v) or v <= 0 for v in opens + closes):
+        raise ValueError("daily benchmark has a missing or non-positive open/close")
+    if (dates[0], dates[-1]) != (payload["benchmark"]["start_date"], payload["benchmark"]["end_date"]):
+        raise ValueError("benchmark start_date/end_date do not match the dates")
+
+
 def check_benchmark(payload: dict) -> None:
     if payload.get("schema_version") != "1.0":
         raise ValueError(f"unsupported schema_version {payload.get('schema_version')!r}")
     for key in ("id", "name_cn", "index_code", "return_basis", "start_date", "end_date"):
         if not payload["benchmark"].get(key):
             raise ValueError(f"benchmark.{key} is missing")
+    if "dates" in payload:
+        return check_daily_benchmark(payload)
     series = payload["series"]
     if not series:
         raise ValueError("series is empty")
@@ -275,7 +286,25 @@ def main() -> None:
     bench = sub.add_parser("benchmark")
     bench.add_argument("--id", required=True, choices=sorted(BENCHMARKS))
     sub.add_parser("all")
+    sub.add_parser("composite")
+    rel = sub.add_parser("relationships")
+    rel.add_argument("--run", required=True, help="Stage 7 observation run directory (relative to the project root)")
     args = parser.parse_args()
+
+    if args.command == "relationships":
+        from scripts.stage7_factor_relationships import website_export as RX
+        index = RX.build(PROJECT_ROOT / args.run, RELATIONSHIPS_DIR)
+        for s in index["sets"]:
+            print(f"factor_relationships/{s['file']}: written")
+        print("factor_relationships/index.json: written")
+        return
+
+    if args.command == "composite":
+        from scripts.stage6_composite_factors import website_export as WE
+        for entry in WE.build(COMPOSITE_DIR):
+            print(f"composite_backtest/{entry['data_file']}: written")
+        print("composite_backtest/catalog.json: written")
+        return
 
     factor_ids, benchmark_ids = [], []
     if args.command == "factor":

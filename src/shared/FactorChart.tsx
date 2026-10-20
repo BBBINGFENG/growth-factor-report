@@ -26,6 +26,9 @@ interface Props {
   height?: number;
   // Optional tooltip body for the hovered category (plain text lines).
   tooltipLines?: (index: number) => string[];
+  // Optional fixed value-axis bounds (e.g. -1..1 for correlations); unset keeps the old behaviour.
+  yMin?: number;
+  yMax?: number;
 }
 
 const PALETTE = ["#1f4e79", "#c0504d", "#7f7f7f", "#4f81bd"];
@@ -35,7 +38,7 @@ function fmt(v: unknown, kind: Props["valueFormat"], digits: number): string {
   return kind === "percent" ? `${(v * 100).toFixed(digits)}%` : v.toFixed(digits);
 }
 
-export default function FactorChart({ title, categories, series, valueFormat, yAxisName, horizontal, height = 320, tooltipLines }: Props) {
+export default function FactorChart({ title, categories, series, valueFormat, yAxisName, horizontal, height = 320, tooltipLines, yMin, yMax }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,7 +48,9 @@ export default function FactorChart({ title, categories, series, valueFormat, yA
       type: "value" as const,
       name: yAxisName,
       nameTextStyle: { color: "#555" },
-      scale: valueFormat === "number",
+      scale: valueFormat === "number" && yMin === undefined && yMax === undefined,
+      min: yMin,
+      max: yMax,
       axisLabel: { formatter: (v: number) => fmt(v, valueFormat, valueFormat === "percent" ? 1 : 2) },
       splitLine: { lineStyle: { color: "#e6e6e6" } },
     };
@@ -91,7 +96,7 @@ export default function FactorChart({ title, categories, series, valueFormat, yA
       window.removeEventListener("resize", onResize);
       chart.dispose();
     };
-  }, [title, categories, series, valueFormat, yAxisName, horizontal, tooltipLines]);
+  }, [title, categories, series, valueFormat, yAxisName, horizontal, tooltipLines, yMin, yMax]);
 
   return (
     <div className="chart-shell" style={{ height }}>
