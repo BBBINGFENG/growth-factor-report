@@ -16,18 +16,16 @@
 6. 网站不保存审批报告、candidate对比、重复哈希清单和过程性诊断。最少的来源信息直接嵌入因子JSON。
 7. 不为每个因子编写网站专属脚本或页面。全部单因子共用一套发布程序、数据格式和前端组件。
 
-## 2. 网站的六个业务模块
+## 2. 网站的四个业务模块
 
 | 模块 | 目录名 | 内容 |
 |---|---|---|
 | 单因子回测 | `single_factor` | 可独立解释和独立回测的信号定义、IC、分组收益、稳定性和风险 |
-| 因子相互解释 | `factor_relationships` | 因子相关性、增量解释力、聚类和冗余分析 |
-| Long-only回测 | `long_only_backtest` | 单因子多头组合、基准超额、换手、成本和回撤 |
+| 因子相互解释 | `factor_relationships` | 单因子之间、组合之间的信号与收益相关、IC 共同变化和名单重合（数据观察，不做筛选或聚类结论） |
 | 组合因子回测 | `composite_backtest` | 多因子合成、权重、组合表现和归因 |
 | 组合因子实盘表现 | `live_composite` | 组合因子的最新信号和样本外表现 |
-| Long-only实盘表现 | `live_long_only` | 实际多头组合持仓、净值、交易和归因 |
 
-当前实现`single_factor`、`composite_backtest`（D01 与 C01–C13，2026-10-18 接入）与`factor_relationships`（数据观察页，2026-10-19 接入）。其他模块在没有真实内容前只在网站导航中显示“待开发”，不创建空数据目录、占位JSON或虚构图表。
+当前实现`single_factor`、`composite_backtest`（D01 与 C01–C13，2026-10-18 接入）与`factor_relationships`（数据观察页，2026-10-19 接入，2026-10-21 改为两部分）。`live_composite`在没有真实内容前只在导航中显示“待开发”，不创建空数据目录、占位JSON或虚构图表。单因子 Long-only 回测与 Long-only 实盘两个入口已于 2026-10-21 移除（不再开发）；旧地址`#long_only_backtest`、`#live_long_only`回到第一个模块。
 
 ## 3. 目标文件结构
 
@@ -40,6 +38,7 @@ website/
 │   │   ├── factor_relationships/
 │   │   │   ├── RelationshipsPage.tsx
 │   │   │   ├── MatrixChart.tsx
+│   │   │   ├── matrixOption.ts
 │   │   │   ├── FormulaPanel.tsx
 │   │   │   └── data.ts
 │   │   ├── composite_backtest/
@@ -71,7 +70,8 @@ website/
 │   │   └── csi300_daily_open_close.json
 │   ├── factor_relationships/
 │   │   ├── index.json
-│   │   └── sets/<set_id>.json
+│   │   ├── single_factors/{matrix.json,pairs_<category>.json}
+│   │   └── composites/{matrix.json,pairs.json}
 │   ├── composite_backtest/
 │   │   ├── catalog.json
 │   │   └── items/<D01|Cxx>.json
@@ -249,22 +249,22 @@ public/data/single_factor/factors/
 | 月度 Rank IC、月度多空收益、逐月覆盖与 C12 类别数、日度净值 | 冻结 run（`artifacts/composite_runs/<run_id>/`、`artifacts/d01_runs/<run_id>/`）的`monthly_ic`、`decile_returns`、`coverage`、`valuation_points` |
 | 状态、实施选择、限制、原文对照 | `artifacts/composite_acceptance/<Cxx>/ACCEPTANCE_RECORD.json`；D01 为`RESEARCH_BASELINE_USAGE.json`与`CALCULATION_VERIFICATION_20261018.json` |
 
-研究层唯一转换位置：`scripts/stage6_composite_factors/website_export.py`（由`publish.py composite`调用）。它只重排已冻结的数值；派生的仅有月频多空累计乘积、日频回撤（`core.risk_metrics.drawdown`）和按期间的算术年化（与 Excel 同一函数`report._ls_arith`）。一致性由`scripts/stage6_composite_factors/verify_website.py`核对（网站 JSON、接口、Excel、冻结 run 四方）。
+研究层唯一转换位置：`scripts/stage6_composite_factors/website_export.py`（由`publish.py composite`调用）。它只重排已冻结的数值；派生的仅有月频多空累计乘积、日频回撤（`core.risk_metrics.drawdown`）、按期间的算术年化（与 Excel 同一函数`report._ls_arith`）和十档月均超额收益（与单因子页同一函数`core.reporting.decile_excess`：逐月减去冻结的全市场剔除北交所等权 E1 基准，再对共同有效月平均；基准的信号月与 E1 区间终点先与共享 E1 文件核对）。一致性由`scripts/stage6_composite_factors/verify_website.py`核对（网站 JSON、接口、Excel、冻结 run 四方）。
 
-页面分四个标签：构成与方法、表现与风险（月频与日频分组显示）、覆盖与样本、状态与限制；顶部固定展示组合结果的性质与限制。C06、C07 标为中间组合（C08 的输入），D01 标为外部依赖与受限研究基线。不显示“完全复现”“可交易”“严格 PIT”等表述。
+页面分四个标签：构成与方法、表现与风险（主图为月度调仓、日度估值的净值与回撤；十档默认显示月均超额收益，原始十档折叠对照；月频 E1 累计净值折叠在“日月口径对账”中，并说明差异来自缺价股票的处理：日度模型按最近有效价格结转与 theoretical exit proxy，E1 把无下一开盘价的股票从当月剔除）、覆盖与样本、状态与限制；顶部固定展示组合结果的性质与限制。C06、C07 标为中间组合（C08 的输入），D01 标为外部依赖与受限研究基线。不显示“完全复现”“可交易”“严格 PIT”等表述。
 
 ### 7.2 因子相互解释模块（factor_relationships）
 
-数据观察页，不筛选因子、不调整权重、不做收益归因或聚类结论。研究层唯一来源是 Stage 7 观察诊断 run（`artifacts/factor_relationships/<run_id>/`，入口`scripts.stage7_factor_relationships.observe_run`），它复用并核对冻结的 Stage 7 基线 run，读取冻结的单因子、组合与 D01 结果。网站导出与核对：`scripts/stage7_factor_relationships/website_export.py`、`verify_website.py`，由`publish.py relationships`调用。
+数据观察页，不筛选因子、不调整权重、不做收益归因或聚类结论。研究层唯一来源是 Stage 7 观察诊断 run（`artifacts/factor_relationships/<run_id>/`，入口`scripts.stage7_factor_relationships.observe_run`），它复用并核对冻结的 Stage 7 基线 run，读取冻结的单因子、组合、D01 结果与冻结的全市场等权 E1 基准。网站导出与核对：`scripts/stage7_factor_relationships/website_export.py`、`verify_website.py`，由`publish.py relationships`调用。
 
-- 顶部选择分析模式（按类别看单因子 / 比较组合）、分析对象和共用的因子 A/B（默认取集合内编号最前的两个，仅为展示默认）。
-- 五个分析区纵向排列，每区左图“2021年前”、右图“2021年起”，共十张图：①因子信号相关 Matrix（Pearson/Spearman/Kendall tau-b，默认 Spearman，期间内有效月度系数的等权平均）；②月频 E1 多空收益 Pearson Matrix；③G10/G1 分组原始收益的 rolling Pearson；④正式月度 Rank IC 序列的 rolling Pearson；⑤目标分组名单的 Jaccard 重合度。
-- 每区一份公式说明（中文标题、一句说明、KaTeX 公式、符号、当前参数），左右两图共用；①按所选方法显示 Pearson（协方差除以两边标准差）、Spearman（共同样本内平均秩后的 Pearson）或 Kendall tau-b（一致/不一致对与并列修正）的公式，三者都附期间等权平均式。公式文本与参数集中在研究层导出的`index.json`，前端只显示；correlation 坐标与颜色固定 −1 到 1，Jaccard 0–100%。
-- Matrix 缺失格（`null`）由独立图层画成灰色“—”，不进入 −1..1 色阶，也不转成 0；真实 0 显示为 0.00。渲染由`website/tests/matrix_render.test.mjs`（合成矩阵，ECharts SVG 实际绘制）核对，合成数据不进入`public/data`。
-- ②的对角线来自研究层：该对象在本期至少 24 个有效月且收益有变化时为 1，否则缺失，并给出有效月份数；导出不补 1。
-- ⑤的名单计数：对象当月参与分组即名单已知（可为空），否则未知。已知时记录真实的双方数量、交集与并集（并集 = 双方数量之和 − 交集）；依赖未知名单的计数为`null`，不写 0。任一侧无有效名单时 Jaccard 为不可比较。
-- 静态数据按分析集合拆分（每个单因子类别、组合集合各一个文件），按需加载；不发布股票级 panel，不为每对因子或每月单独建文件。
-- 单因子与组合是两种模式，不混在同一矩阵；C06/C07 标为中间项，D01 标为受限研究基线；只有一个成员的类别显示“无类内比较对象”。
+- 页面上下两部分，各自独立：第一部分单因子（41 个有全市场主分支的因子，按研究类别分块；F02、F04 只有指数池结果，不进入全市场矩阵）；第二部分组合（12 个组合 / 中间项，D01 作为可选的估值参考，不算第 13 个成长组合，并标注受限状态和依赖它的组合）。
+- 每部分先给①信号相关 Matrix（Pearson/Spearman/Kendall tau-b，默认 Spearman；逐月横截面相关的期间等权平均）与②月频 E1 多空收益 Matrix（分期内月度多空收益时间序列的 Pearson，不是 rolling 的平均），均分“2021年前”“2021年起”两期。单因子矩阵保持可读的格子尺寸，在框内滚动，粗线标出类别分界，可按行、列类别查看局部；缺失格的悬停给出有效样本与缺失原因。
+- 然后是配对选择（单因子：类别 → Factor A、Factor B，类内不足两个因子时说明，不生成假配对；组合：Composite A、Composite B），依次显示③分组超额收益相关、④IC 共同变化、⑤选股名单重合，每项只有一张全时段曲线，竖线标注 2021 分界。
+- ③④的 rolling 在完整、连续的月度时间轴上计算（24/36 个月，默认 36）：窗口为以该信号月结尾的连续 W 个日历月，2021 年不重新起算；至少 24 个共同有效月且两边有变化，否则缺失。样本开头不足 W 个月为 warm-up，保持缺失；较晚才有数据的对象不提前填充。曲线不跨缺失连线，并显示首个有效结果、窗口起止和共同有效月数。
+- ③的分组超额收益 = 冻结分组收益 − 同一信号月、同一 E1 区间的全市场（剔除北交所）等权收益（`data/processed/benchmarks/pool_equal_weight/`，按信号月与区间终点核对，所有远期收益文件与共享 E1 文件逐行一致）。对 C11、D01 等样本较窄的对象，这是共同参考而不是其自身股票池的基准；减去参考不等于消除全部市场暴露。原始分组收益相关只作为折叠的全样本数值对照。
+- ⑤为逐月 Jaccard（不做滚动）。对象当月参与分组即名单已知（可为空），否则未知；已知时记录真实的双方数量、交集与并集（并集 = 双方数量之和 − 交集），依赖未知名单的计数为`null`；任一侧无名单时为不可比较。
+- 每个分析区一份公式（研究层`index.json`，前端只显示），①随所选方法切换；符号说明与详细口径折叠。Matrix 缺失格（`null`）由独立图层画成灰色“—”，不进入 −1..1 色阶，真实 0 显示为 0.00；渲染由`website/tests/matrix_render.test.mjs`（合成矩阵，ECharts SVG 实际绘制）核对，合成数据不进入`public/data`。
+- 静态数据：`index.json`、每部分一个`matrix.json`，配对数据按单因子类别（`pairs_<category>.json`）或组合（`pairs.json`）拆分，按需加载；不发布股票级 panel 或逐对、逐月文件。
 
 ## 8. 公共基准
 
@@ -294,10 +294,11 @@ publish.py factor --ids 01 02 03 04 05 06
 publish.py benchmark --id csi300
 publish.py all
 publish.py composite
-publish.py relationships
+publish.py relationships --run <run>
+publish.py check --run <run>
 ```
 
-`composite`与`relationships`都不属于`all`，分别只在组合结果接口或 Stage 7 观察诊断 run 更新后运行。
+`composite`与`relationships`都不属于`all`，分别只在组合结果接口或 Stage 7 观察诊断 run 更新后运行，写完数据后各自运行对应的发布校验，失败即非零退出。`check`调用`website/tools/release_check.py`，是推送上线前的统一门禁：核对观察 run 输出哈希，并要求 Stage 7 与组合两个`verify_website.verify()`都返回`all_pass: true`；否则（包括异常、数据缺失、哈希不符）退出码为 1。两个 verify 模块的直接命令行只打印结果，不作发布判据。
 
 它只负责读取冻结结果、转换网站JSON、更新catalog和复制公共基准。不得下载数据、运行因子、修改回测产物或生成额外审批文件。
 
@@ -325,7 +326,7 @@ publish.py relationships
 
 ## 11. 网站导航与当前实现
 
-顶层导航展示六个模块。`single_factor`、`factor_relationships`与`composite_backtest`为当前可用模块，各自路由到独立页面；其余三个模块显示模块名称、一句功能说明和“待开发”，不显示虚构数据。
+顶层导航展示四个模块。`single_factor`、`factor_relationships`与`composite_backtest`为当前可用模块，各自路由到独立页面（地址栏 hash 记录当前模块，未知或已移除的 hash 回到第一个模块）；`live_composite`显示模块名称、一句功能说明和“待开发”，不显示虚构数据。
 
 单因子页面使用一套组件展示所有因子，并提供：
 

@@ -150,12 +150,18 @@ thead th { color: var(--muted); font-weight: 600; border-bottom: 1px solid #b9be
   .spec dt { margin-top: 6px; }
 }
 
-/* factor_relationships: two charts per section, before / since 2021 */
-.relationship-controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; }
-.member-picks { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
-.member-picks label { display: inline-flex; gap: 4px; align-items: center; }
+/* factor_relationships: two parts; matrices per period, one full-period curve per pair diagnostic */
+.relationship-controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; margin: 8px 0; }
+.selector.checkbox { gap: 6px; }
 .pair-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
-.pair-grid > div { min-width: 0; }
+.pair-grid > div, .matrix-stack > div { min-width: 0; }
+.matrix-stack { display: flex; flex-direction: column; gap: 20px; }
+.matrix-shell { display: flex; flex-direction: column; width: 100%; }
+.matrix-scroll { overflow-x: auto; width: 100%; }
+.part-head h2 { margin-bottom: 4px; }
+.pair-controls h3, .formula-panel h3 { margin: 0 0 6px; font-size: 16px; }
+.formula-details { margin: 6px 0 10px; }
+.formula-details summary { cursor: pointer; color: #1f4e79; font-size: 13px; }
 .panel-meta { font-size: 12px; color: #555; margin: 4px 0 0; }
 .no-compare { padding: 24px; text-align: center; color: #666; border: 1px dashed var(--line); border-radius: 4px; }
 .formula-params { font-size: 12px; color: #444; margin-top: 6px; }

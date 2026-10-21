@@ -127,6 +127,14 @@ export interface CompositeReport {
     long_short_arithmetic_by_period: Record<string, Num>;
     daily: DailyRow[];
     deciles: { mean_group_returns: Num[]; spearman_group_vs_mean_return: Num; months_grouped: number; monthly_spearman_mean: Num };
+    deciles_excess: {
+      benchmark: { name_cn: string; pool: string; basis: string; file: string };
+      groups: { group: string; raw_monthly: Num; benchmark_monthly: Num; excess_monthly: Num; valid_month_count: number }[];
+      first_month: string | null;
+      last_month: string | null;
+      months: number;
+      sample_note: string | null;
+    };
   };
   effective_period: {
     rule: string;

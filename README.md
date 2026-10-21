@@ -7,15 +7,15 @@
 | 模块 | 状态 |
 |---|---|
 | 单因子回测 | 已实现，当前研究范围内43个已发布：Factor 1–26、29–33、35–39、41–47（Factor 27、28、34、40 已固定移出当前研究清单） |
-| 因子相互解释 | 已实现（数据观察页）：按类别比较单因子，或比较组合因子；五个板块各分 2021年前 / 2021年起 两张图 |
-| Long-only回测 | 待开发 |
+| 因子相互解释 | 已实现（数据观察页）：上半部分单因子（41 个，按类别分块的跨类别矩阵 + 类内配对），下半部分组合（12 个，D01 可选作估值参考）；矩阵分 2021年前 / 2021年起，配对诊断为全时段曲线 |
 | 组合因子回测 | 已实现：D01（外部依赖，受限研究基线）、10 个主要组合 C01–C04、C08–C13，以及 2 个中间组合 C06、C07；C05 不在范围 |
 | 组合因子实盘表现 | 待开发 |
-| Long-only实盘表现 | 待开发 |
 
-组合页面读取当前结果接口（rev5）与冻结组合 run，由 `python3 website/tools/publish.py composite` 生成 `public/data/composite_backtest/`；分“构成与方法”“表现与风险”“覆盖与样本”“状态与限制”四个标签，顶部固定披露删减版、实施假设、D01 限制、日频与月频口径、theoretical proxy、未计成本及沪深300仅作参考。一致性检查：`python3 -m scripts.stage6_composite_factors.verify_website`。
+单因子 Long-only 回测与 Long-only 实盘两个入口已移除，不再开发。
 
-因子相互解释页面只展示相关性和名单重合，不筛选因子、不调整组合权重、不做收益归因或聚类结论。数据来自 Stage 7 观察诊断 run，由 `python3 website/tools/publish.py relationships --run artifacts/factor_relationships/<run_id>` 生成 `public/data/factor_relationships/`（`index.json` 与按集合拆分的 `sets/<set_id>.json`，按需加载）；一致性检查：`python3 -m scripts.stage7_factor_relationships.verify_website <run_dir>`。公式文字只在 `scripts/stage7_factor_relationships/website_export.py` 维护，网页不计算。矩阵缺失格的实际绘制测试：在 `website/` 下运行 `node --test tests/matrix_render.test.mjs`（合成矩阵，仅用于测试）。
+组合页面读取当前结果接口（rev5）与冻结组合 run，由 `python3 website/tools/publish.py composite` 生成 `public/data/composite_backtest/`；十档默认显示相对全市场（剔除北交所）等权 E1 收益的月均超额收益，月频 E1 累计净值折叠在“日月口径对账”中；分“构成与方法”“表现与风险”“覆盖与样本”“状态与限制”四个标签，顶部固定披露删减版、实施假设、D01 限制、日频与月频口径、theoretical proxy、未计成本及沪深300仅作参考。一致性检查：`python3 -m scripts.stage6_composite_factors.verify_website`。
+
+因子相互解释页面只展示相关性和名单重合，不筛选因子、不调整组合权重、不做收益归因或聚类结论。数据来自 Stage 7 观察诊断 run，由 `python3 website/tools/publish.py relationships --run artifacts/factor_relationships/<run_id>` 生成 `public/data/factor_relationships/`（`index.json`、每部分的 `matrix.json` 和按类别 / 组合拆分的配对文件，按需加载）；一致性检查：`python3 -m scripts.stage7_factor_relationships.verify_website <run_dir>`。公式文字只在 `scripts/stage7_factor_relationships/website_export.py` 维护，网页不计算。矩阵缺失格的实际绘制测试：在 `website/` 下运行 `node --test tests/matrix_render.test.mjs`（合成矩阵，仅用于测试）。
 
 单因子页面可按研究主题和方法筛选因子，每个因子有“定义与核心表现”“稳定性与风险”和“计算公式与口径”三个标签页。
 
@@ -53,6 +53,18 @@ public/data/single_factor/catalog.json
 public/data/single_factor/factors/<id>_<name>.json
 public/data/shared/benchmarks/csi300_monthly_open_to_open.json
 ```
+
+组合与因子相互解释的数据分别由 `publish.py composite`、`publish.py relationships --run artifacts/factor_relationships/<run_id>` 生成；这两个命令写完数据后会立即运行对应的发布校验，校验失败时以非零状态退出。
+
+## 发布门禁
+
+上线前（推送到 `main` 之前）在回测项目根目录运行统一入口，它是自动发布成功与否的唯一判据：
+
+```bash
+python3 website/tools/publish.py check --run artifacts/factor_relationships/<当前观察 run>
+```
+
+等价于 `python3 website/tools/release_check.py --relationships-run <run>`。它先核对观察 run 的输出文件与其 manifest 的 sha256，再调用 `scripts.stage7_factor_relationships.verify_website.verify` 与 `scripts.stage6_composite_factors.verify_website.verify`；只有每项都返回 `all_pass: true` 才以 0 退出，`all_pass` 为 false 或缺失、数据缺失、代码或哈希不符、抛出异常都会以 1 退出。两个 `verify_website` 模块自身的命令行只打印 JSON、总是正常退出，只用于查看明细，不能作为发布判据。门禁代码由网站仓库版本控制追踪，不属于任何研究 run 记录的代码。随后运行 `pnpm run build`（含 TypeScript 检查），两者都通过后再推送。
 
 内容没有变化时不会重写文件。新因子需要先在 `publish.py` 的 `FACTORS` 中登记英文名和分类；属于新因子家族时，还要在 `reporting.py` 中补充该家族的定义文字模板。只改页面样式或排版时，不重新发布数据。
 

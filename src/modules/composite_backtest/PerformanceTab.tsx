@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import FactorChart, { type Series } from "../../shared/FactorChart";
 import { num, pct, type Num } from "../../shared/format";
 import { loadCsi300Daily, type DailyBenchmark } from "../single_factor/data";
-import type { CompositeReport, DailyRow, MonthlyRow } from "./data";
+import { ymd, type CompositeReport, type DailyRow, type MonthlyRow } from "./data";
 
 const PERIODS = [["all", "整体"], ["since_2021", "2021年至今"]] as const;
 
@@ -89,6 +89,7 @@ export default function PerformanceTab({ report: r }: { report: CompositeReport 
   const years = r.metrics.monthly_annual.filter((x) => x.period !== "all" && !x.period.startsWith("since"));
   const dailyYears = new Map(r.metrics.daily.map((x) => [x.period, x]));
   const dec = r.metrics.deciles;
+  const dx = r.metrics.deciles_excess;
   const comp = Object.values(r.comparisons);
 
   return (
@@ -109,18 +110,41 @@ export default function PerformanceTab({ report: r }: { report: CompositeReport 
       <section className="card">
         <FactorChart title="多空净值（月度调仓、日度估值）" categories={dailyCats} series={navSeries} valueFormat="number" height={340} />
         <FactorChart title="日频回撤" categories={dailyCats} series={[{ name: "回撤", data: daily.drawdown, color: "#c0504d", width: 1.25 }]} valueFormat="percent" height={220} />
-        <p className="caption">沪深300价格指数在相同估值点上归一化，仅作市场环境参考，不是多空组合的 benchmark。未计交易成本、滑点与融券约束；缺失退出价格按最近有效价格估值（theoretical proxy）。</p>
+        <p className="caption">主图：月度调仓、日度估值的理论研究模型。沪深300价格指数在相同估值点上归一化，仅作市场环境参考，不是多空组合的 benchmark。未计交易成本、滑点与融券约束；缺失退出价格按最近有效价格估值（theoretical exit proxy）。与月频 E1 的差异见下方“日月口径对账”。</p>
       </section>
 
       <section className="card">
         <FactorChart title="月度 Rank IC" categories={monthCats}
                      series={[{ name: "Rank IC", type: "bar", data: monthly.rank_ic.map((v, i) => (monthly.ic_below_min_n[i] ? null : v)), color: "#4f81bd" }]}
                      valueFormat="percent" height={260} />
-        <FactorChart title="十档月均收益（G1 最低 → G10 最高，原始收益）" categories={dec.mean_group_returns.map((_, i) => `G${i + 1}`)}
-                     series={[{ name: "月均收益", type: "bar", data: dec.mean_group_returns, color: "#1f4e79" }]} valueFormat="percent" height={260} />
-        <p className="caption">十档为各月 E1 收益的组内等权均值再对 {dec.months_grouped} 个分组月取平均（未减股票池基准）；组序与月均收益的 Spearman = {num(dec.spearman_group_vs_mean_return)}。N&lt;30 的月份 IC 不显示。</p>
-        <FactorChart title="月频多空累计净值（E1，对照）" categories={monthCats}
-                     series={[{ name: "月频 G10−G1 累计", data: monthly.long_short_nav, color: "#7f7f7f" }]} valueFormat="number" height={260} />
+        <p className="caption">N&lt;30 的月份 IC 不显示。</p>
+        <FactorChart title={`十档月均超额收益（G1 最低 → G10 最高；减 ${dx.benchmark.name_cn}）`} categories={dx.groups.map((g) => g.group)}
+                     series={[{ name: "月均超额收益", type: "bar", data: dx.groups.map((g) => g.excess_monthly), color: "#1f4e79" }]} valueFormat="percent" height={260}
+                     tooltipLines={(i) => [`月均超额：${pct(dx.groups[i].excess_monthly, 3)}`, `原始月均：${pct(dx.groups[i].raw_monthly, 3)}；基准月均：${pct(dx.groups[i].benchmark_monthly, 3)}`, `有效月份：${dx.groups[i].valid_month_count}`]} />
+        <p className="caption">
+          每月先用该组 E1 收益减去同一信号月、同一 E1 区间（信号月开盘到下一信号月开盘）的{dx.benchmark.name_cn}，再对双方都有值的月份取平均；
+          信号月 {ymd(dx.first_month)} 至 {ymd(dx.last_month)}（每月收益区间为该信号月开盘到下一信号月开盘），有效月份 {dx.months}（各组见悬停）。G1 最低、G10 最高；同一月两腿减去相同基准，G10−G1 多空收益不变，不再重复扣减。
+          {dx.sample_note ? ` ${dx.sample_note}。` : ""}
+        </p>
+        <details className="formula-details">
+          <summary>原始十档月均收益（未减基准，对照）</summary>
+          <FactorChart title="十档月均收益（原始收益，G1 最低 → G10 最高）" categories={dec.mean_group_returns.map((_, i) => `G${i + 1}`)}
+                       series={[{ name: "月均收益", type: "bar", data: dec.mean_group_returns, color: "#7f7f7f" }]} valueFormat="percent" height={240} />
+          <p className="caption">各月 E1 组内等权收益对 {dec.months_grouped} 个分组月取平均（冻结结果）；组序与月均收益的 Spearman = {num(dec.spearman_group_vs_mean_return)}。</p>
+        </details>
+      </section>
+
+      <section className="card">
+        <details className="formula-details">
+          <summary>日月口径对账：月频 E1 累计净值</summary>
+          <FactorChart title="月频多空累计净值（E1 月度端点复合，对照）" categories={monthCats}
+                       series={[{ name: "月频 G10−G1 累计", data: monthly.long_short_nav, color: "#7f7f7f" }]} valueFormat="number" height={260} />
+          <p className="caption">
+            月频 E1 是原文复现与月度诊断的口径：每组取当月 E1 收益（信号月开盘到下一信号月开盘）的等权均值，某只股票没有下一信号月开盘价（停牌、退市等）时，该股从当月组均值中剔除。
+            日度模型（上方主图）则按建仓时有开盘价的股票持有到下一调仓日，缺收盘价时按最近有效价格结转，下一调仓日仍无开盘价时按最近有效价格视为平仓（theoretical exit proxy），
+            之后的复牌损益不由任何持仓承担。在月末端点上，两者对同一批有价股票的等权买入持有收益和逐月复利方式相同，差异来自上述缺价股票的处理，而不是采样频率本身。两者都是理论研究模型，未计交易成本与融券约束。
+          </p>
+        </details>
       </section>
 
       <section className="card">

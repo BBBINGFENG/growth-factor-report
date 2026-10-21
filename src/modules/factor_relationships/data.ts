@@ -20,21 +20,34 @@ export interface Section extends FormulaText {
   methods?: Record<Method, FormulaText>;
 }
 
-export interface SetMember {
+export interface Member {
   id: string;
   name_cn: string;
+  group: string;
   role: string | null;
   role_note: string | null;
+  inherits_d01: boolean;
+  sample_note: string | null;
 }
 
-export interface SetEntry {
+export interface Group {
   id: string;
+  name_cn: string;
+  members: string[];
+  pair_file: string | null;
+}
+
+export interface Part {
+  id: "single_factors" | "composites";
   mode: "single_factor" | "composite";
   name_cn: string;
-  file: string;
-  members: SetMember[];
-  default_members: string[];
-  comparable: boolean;
+  matrix_file: string;
+  pairs: "within_group" | "all";
+  pair_file: string | null;
+  groups: Group[];
+  members: Member[];
+  default_hidden: string[];
+  note: string;
 }
 
 export interface RelationshipsIndex {
@@ -54,17 +67,30 @@ export interface RelationshipsIndex {
     group_pairs: ListPair[];
     period_labels: Record<Period, string>;
     boundary: string;
+    calendar_first: string;
+    calendar_last: string;
   };
+  benchmark: { name_cn: string; basis: string; run: string; pool: string; first: string; last: string; aligned: boolean };
   sections: Section[];
   notice: string;
-  sets: SetEntry[];
+  parts: Part[];
 }
 
 type Matrix<T> = (T | null)[][];
 
+export interface MatrixData {
+  schema_version: number;
+  set_id: string;
+  members: string[];
+  signal_matrix: Record<Method, Record<Period, { mean_rho: Matrix<number>; months: Matrix<number>; mean_n: Matrix<number>; min_n: Matrix<number> }>>;
+  member_months: Record<Period, Record<string, { months: number; first: string | null; last: string | null }>>;
+  return_matrix: Record<Period, { pearson: Matrix<number>; n_months: Matrix<number> }>;
+}
+
 export interface RollingSeries {
   value: Num[];
   n_months: number[];
+  first_valid: { signal_date: string; window_start: string; n_months: number } | null;
 }
 
 // Counts are null when they depend on an unknown list; a known empty list counts 0.
@@ -77,42 +103,47 @@ export interface OverlapSeries {
 }
 
 export interface PairData {
-  rolling: Record<string, Record<string, Record<Period, RollingSeries>>>;
-  overlap: Record<string, Record<Period, OverlapSeries>>;
+  rolling: Record<string, Record<string, RollingSeries>>;
+  overlap: Record<string, OverlapSeries>;
+  summary: Record<string, Record<"raw" | "excess", { pearson: Num; n_months: number }>>;
 }
 
-export interface SetData {
+export interface ObjectInfo {
+  excess_months: Record<"G10" | "G1", number>;
+  excess_first: string | null;
+  ic_valid_months: number;
+  ic_first: string | null;
+  ic_mean_n: Num;
+}
+
+export interface PairFile {
   schema_version: number;
   set_id: string;
-  mode: string;
-  members: string[];
-  dates: Record<Period, string[]>;
-  signal_matrix?: Record<Method, Record<Period, { mean_rho: Matrix<number>; months: Matrix<number>; mean_n: Matrix<number>; min_n: Matrix<number> }>>;
-  return_matrix?: Record<Period, { pearson: Matrix<number>; n_months: Matrix<number> }>;
-  pairs?: Record<string, PairData>;
-  ic_samples?: Record<string, Partial<Record<Period, { valid_months: number; mean_n: Num }>>>;
+  calendar: string[];
+  objects: Record<string, ObjectInfo>;
+  pairs: Record<string, PairData>;
 }
 
 export function loadIndex(): Promise<RelationshipsIndex> {
   return getJson<RelationshipsIndex>("factor_relationships/index.json");
 }
 
-const cache = new Map<string, Promise<SetData>>();
-export function loadSet(entry: SetEntry): Promise<SetData> {
-  if (!cache.has(entry.file)) cache.set(entry.file, getJson<SetData>(`factor_relationships/${entry.file}`));
-  return cache.get(entry.file)!;
+const cache = new Map<string, Promise<unknown>>();
+function cached<T>(file: string): Promise<T> {
+  if (!cache.has(file)) cache.set(file, getJson<T>(`factor_relationships/${file}`));
+  return cache.get(file) as Promise<T>;
 }
+export const loadMatrix = (file: string) => cached<MatrixData>(file);
+export const loadPairs = (file: string) => cached<PairFile>(file);
 
 const SWAP: Record<string, string> = { "G10-G10": "G10-G10", "G1-G1": "G1-G1", "G10-G1": "G1-G10", "G1-G10": "G10-G1", IC: "IC" };
 
 /** Pairs are stored once in member order; (B, A) with "G10-G1" is the stored (A, B) "G1-G10". Lookup only. */
-export function pairView(set: SetData, a: string, b: string, kind: string): { pair: PairData | undefined; key: string; swapped: boolean } {
-  const ia = set.members.indexOf(a);
-  const ib = set.members.indexOf(b);
-  if (ia <= ib) return { pair: set.pairs?.[`${a}|${b}`], key: kind, swapped: false };
-  return { pair: set.pairs?.[`${b}|${a}`], key: SWAP[kind], swapped: true };
+export function pairView(file: PairFile, order: string[], a: string, b: string, kind: string): { pair: PairData | undefined; key: string; swapped: boolean } {
+  if (order.indexOf(a) <= order.indexOf(b)) return { pair: file.pairs[`${a}|${b}`], key: kind, swapped: false };
+  return { pair: file.pairs[`${b}|${a}`], key: SWAP[kind], swapped: true };
 }
 
-export function ym(d: string): string {
-  return `${d.slice(0, 4)}-${d.slice(4, 6)}`;
+export function ym(d: string | null | undefined): string {
+  return d ? `${d.slice(0, 4)}-${d.slice(4, 6)}` : "—";
 }

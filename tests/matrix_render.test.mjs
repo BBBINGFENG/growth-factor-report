@@ -16,7 +16,7 @@ const nMissing = values.flat().filter((v) => v === null).length;
 
 function render() {
   const chart = echarts.init(null, null, { renderer: "svg", ssr: true, width: 520, height: 460 });
-  chart.setOption(matrixOption(labels, values, (i, j) => [`detail ${i},${j}`]));
+  chart.setOption(matrixOption(labels, labels, values, (i, j) => [`detail ${i},${j}`]));
   return chart;
 }
 
@@ -56,10 +56,22 @@ test("colour scale is fixed to -1..1: positive red, negative blue, zero near whi
 });
 
 test("tooltip says missing and keeps the sample detail", () => {
-  const opt = matrixOption(labels, values, (i, j) => [`有效月份 ${i}${j}`]);
+  const opt = matrixOption(labels, labels, values, (i, j) => [`有效月份 ${i}${j}`]);
   const miss = opt.tooltip.formatter({ seriesIndex: 1, data: [2, 1] });
   assert.match(miss, /B × C：缺失/);
   assert.match(miss, /有效月份 12/);
   const zero = opt.tooltip.formatter({ seriesIndex: 0, data: [1, 0, 0] });
   assert.match(zero, /A × B：0\.000/);
+});
+
+test("a rectangular slice keeps rows and columns apart and draws category separators", () => {
+  const rows = ["A", "B"], cols = ["A", "B", "C", "D", "E"];
+  const vals = [[1, 0.2, null, -0.3, 0.4], [0.2, 1, 0.1, null, -0.6]];
+  const chart = echarts.init(null, null, { renderer: "svg", ssr: true, width: 520, height: 260 });
+  chart.setOption(matrixOption(rows, cols, vals, () => [], { colBreaks: [2], rowBreaks: [1] }));
+  const svg = chart.renderToSVGString();
+  assert.equal(texts(svg).filter((x) => x === MISSING_TEXT).length, 2);
+  assert.equal(chart.getModel().getSeriesByIndex(0).getData().count(), 8);
+  assert.equal((svg.match(/stroke="#222"/g) || []).length, 2);
+  chart.dispose();
 });

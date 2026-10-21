@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts/core";
 import { BarChart, LineChart } from "echarts/charts";
-import { GridComponent, TooltipComponent } from "echarts/components";
+import { GridComponent, MarkLineComponent, TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import type { Num } from "./format";
 
-echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
+echarts.use([BarChart, LineChart, GridComponent, MarkLineComponent, TooltipComponent, CanvasRenderer]);
 
 export interface Series {
   name: string;
@@ -29,6 +29,8 @@ interface Props {
   // Optional fixed value-axis bounds (e.g. -1..1 for correlations); unset keeps the old behaviour.
   yMin?: number;
   yMax?: number;
+  // Optional vertical reference lines at category indices (e.g. a period boundary); display only.
+  markers?: { index: number; label: string }[];
 }
 
 const PALETTE = ["#1f4e79", "#c0504d", "#7f7f7f", "#4f81bd"];
@@ -38,7 +40,7 @@ function fmt(v: unknown, kind: Props["valueFormat"], digits: number): string {
   return kind === "percent" ? `${(v * 100).toFixed(digits)}%` : v.toFixed(digits);
 }
 
-export default function FactorChart({ title, categories, series, valueFormat, yAxisName, horizontal, height = 320, tooltipLines, yMin, yMax }: Props) {
+export default function FactorChart({ title, categories, series, valueFormat, yAxisName, horizontal, height = 320, tooltipLines, yMin, yMax, markers }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,6 +90,11 @@ export default function FactorChart({ title, categories, series, valueFormat, yA
         color: s.color ?? PALETTE[i % PALETTE.length],
         lineStyle: { width: s.width ?? (i === 0 ? 1.5 : 2.25), type: s.dashed ? ("dashed" as const) : ("solid" as const) },
         z: i + 1,
+        ...(i === 0 && markers?.length
+          ? { markLine: { symbol: "none", silent: true, animation: false, lineStyle: { color: "#555", type: "dashed" as const, width: 1 },
+                          label: { formatter: (p: { name: string }) => p.name, color: "#555", fontSize: 11, position: "insideEndTop" as const },
+                          data: markers.map((m) => ({ xAxis: categories[m.index], name: m.label })) } }
+          : {}),
       })),
     });
     const onResize = () => chart.resize();
@@ -96,7 +103,7 @@ export default function FactorChart({ title, categories, series, valueFormat, yA
       window.removeEventListener("resize", onResize);
       chart.dispose();
     };
-  }, [title, categories, series, valueFormat, yAxisName, horizontal, tooltipLines, yMin, yMax]);
+  }, [title, categories, series, valueFormat, yAxisName, horizontal, tooltipLines, yMin, yMax, markers]);
 
   return (
     <div className="chart-shell" style={{ height }}>

@@ -6,6 +6,10 @@
     python3 website/tools/publish.py all
     python3 website/tools/publish.py composite
     python3 website/tools/publish.py relationships --run artifacts/factor_relationships/<run_id>
+    python3 website/tools/publish.py check --run artifacts/factor_relationships/<run_id>   # release gate
+
+`composite`, `relationships` and `check` run website/tools/release_check.py and exit non-zero when a
+check fails, so a failed verification stops the publish.
 
 Factors: reads the accepted run named in each Acceptance Record and calls
 scripts/stage4_single_factor/core/reporting.py. Benchmarks: copies the shared
@@ -289,22 +293,30 @@ def main() -> None:
     sub.add_parser("composite")
     rel = sub.add_parser("relationships")
     rel.add_argument("--run", required=True, help="Stage 7 observation run directory (relative to the project root)")
+    chk = sub.add_parser("check", help="release gate over all website data checks")
+    chk.add_argument("--run", required=True, help="Stage 7 observation run published on the site")
     args = parser.parse_args()
+    import release_check as RC
+
+    if args.command == "check":
+        sys.exit(RC.main(["--relationships-run", args.run]))
 
     if args.command == "relationships":
         from scripts.stage7_factor_relationships import website_export as RX
         index = RX.build(PROJECT_ROOT / args.run, RELATIONSHIPS_DIR)
-        for s in index["sets"]:
-            print(f"factor_relationships/{s['file']}: written")
+        for p in index["parts"]:
+            files = [p["matrix_file"], p["pair_file"]] + [g["pair_file"] for g in p["groups"]]
+            for f in filter(None, files):
+                print(f"factor_relationships/{f}: written")
         print("factor_relationships/index.json: written")
-        return
+        sys.exit(RC.main([], checks={"factor_relationships": lambda: RC.relationships_check((PROJECT_ROOT / args.run).resolve())}))
 
     if args.command == "composite":
         from scripts.stage6_composite_factors import website_export as WE
         for entry in WE.build(COMPOSITE_DIR):
             print(f"composite_backtest/{entry['data_file']}: written")
         print("composite_backtest/catalog.json: written")
-        return
+        sys.exit(RC.main([], checks={"composite_backtest": RC.composite_check}))
 
     factor_ids, benchmark_ids = [], []
     if args.command == "factor":
