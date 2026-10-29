@@ -7,6 +7,7 @@
     python3 website/tools/publish.py composite
     python3 website/tools/publish.py relationships --run artifacts/factor_relationships/<run_id>
     python3 website/tools/publish.py check --run artifacts/factor_relationships/<run_id>   # release gate
+        (also gates live_composite against the paper-trading run named in its index.json, or --live-run)
 
 `composite`, `relationships` and `check` run website/tools/release_check.py and exit non-zero when a
 check fails, so a failed verification stops the publish.
@@ -37,6 +38,7 @@ SINGLE_FACTOR_DIR = DATA_DIR / "single_factor"
 SHARED_BENCHMARK_DIR = DATA_DIR / "shared" / "benchmarks"
 COMPOSITE_DIR = DATA_DIR / "composite_backtest"
 RELATIONSHIPS_DIR = DATA_DIR / "factor_relationships"
+LIVE_DIR = DATA_DIR / "live_composite"
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from scripts.stage4_single_factor.core import accepted_runs as AR  # noqa: E402
@@ -295,11 +297,16 @@ def main() -> None:
     rel.add_argument("--run", required=True, help="Stage 7 observation run directory (relative to the project root)")
     chk = sub.add_parser("check", help="release gate over all website data checks")
     chk.add_argument("--run", required=True, help="Stage 7 observation run published on the site")
+    chk.add_argument("--live-run", help="paper-trading run published on the site (default: the run in live_composite/index.json)")
     args = parser.parse_args()
     import release_check as RC
 
     if args.command == "check":
-        sys.exit(RC.main(["--relationships-run", args.run]))
+        argv = ["--relationships-run", args.run]
+        live = args.live_run
+        if live is None and (LIVE_DIR / "index.json").exists():
+            live = f"artifacts/paper_trading/runs/{json.loads((LIVE_DIR / 'index.json').read_text(encoding='utf-8'))['run_id']}"
+        sys.exit(RC.main(argv + (["--live-run", live] if live else [])))
 
     if args.command == "relationships":
         from scripts.stage7_factor_relationships import website_export as RX

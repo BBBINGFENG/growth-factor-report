@@ -23,9 +23,9 @@
 | 单因子回测 | `single_factor` | 可独立解释和独立回测的信号定义、IC、分组收益、稳定性和风险 |
 | 因子相互解释 | `factor_relationships` | 单因子之间、组合之间的信号与收益相关、IC 共同变化和名单重合（数据观察，不做筛选或聚类结论） |
 | 组合因子回测 | `composite_backtest` | 多因子合成、权重、组合表现和归因 |
-| 组合因子实盘表现 | `live_composite` | 组合因子的最新信号和样本外表现 |
+| 组合策略模拟表现 | `live_composite` | 12 个组合自 2026-01-01 起的独立模拟账户（历史模拟，非真实成交、非严格样本外）：表现、持仓、订单、成交、成本与全部假设 |
 
-当前实现`single_factor`、`composite_backtest`（D01 与 C01–C13，2026-10-18 接入）与`factor_relationships`（数据观察页，2026-10-19 接入，2026-10-21 改为两部分）。`live_composite`在没有真实内容前只在导航中显示“待开发”，不创建空数据目录、占位JSON或虚构图表。单因子 Long-only 回测与 Long-only 实盘两个入口已于 2026-10-21 移除（不再开发）；旧地址`#long_only_backtest`、`#live_long_only`回到第一个模块。
+当前实现`single_factor`、`composite_backtest`（D01 与 C01–C13，2026-10-18 接入）与`factor_relationships`（数据观察页，2026-10-19 接入，2026-10-21 改为两部分）。`live_composite`（组合策略模拟表现，2026-10 接入）由 Stage 8 每日更新。单因子 Long-only 回测与 Long-only 实盘两个入口已于 2026-10-21 移除（不再开发）；旧地址`#long_only_backtest`、`#live_long_only`回到第一个模块。
 
 ## 3. 目标文件结构
 
@@ -266,6 +266,20 @@ public/data/single_factor/factors/
 - 每个分析区一份公式（研究层`index.json`，前端只显示），①随所选方法切换；符号说明与详细口径折叠。Matrix 缺失格（`null`）由独立图层画成灰色“—”，不进入 −1..1 色阶，真实 0 显示为 0.00；渲染由`website/tests/matrix_render.test.mjs`（合成矩阵，ECharts SVG 实际绘制）核对，合成数据不进入`public/data`。
 - 静态数据：`index.json`、每部分一个`matrix.json`，配对数据按单因子类别（`pairs_<category>.json`）或组合（`pairs.json`）拆分，按需加载；不发布股票级 panel 或逐对、逐月文件。
 
+### 7.3 组合策略模拟模块（live_composite）
+
+历史模拟（historical simulation），不是真实账户成交，也不能称为严格样本外。研究层唯一来源是 `scripts/stage8_paper_trading/`：
+
+- `config.py`：全部模拟假设（股票池、Top 30 选股与权重上限、开盘成交近似、涨跌停 / 停牌 / T+1 / 整手 / 流动性上限、订单顺延与撤销、公司行动、佣金与规费、执行成本情景、参考组合、指标口径、限制）。运行 manifest 与网站说明都由这一份配置生成。
+- `data.py`：增量原始数据（每组一个 live raw run，RawRun 断点续传，只追加）、与冻结批次逐行去重后的增量差集、只在本进程生效的读取 overlay（不修改被冻结 run 记录哈希的源文件）、数据盘点与“数据齐备至”判定。
+- `signals.py`：用冻结研究代码为新信号月重算 Stage 3、四个 mart、各成分 raw panel、组合路线、D01 与下游组合；与冻结样本重叠的 2026-01 至 07 月逐值对账；每月分数首次计算后存入 `artifacts/paper_trading/signals/<signal_date>.parquet`，此后不改写。
+- `engine.py` / `simulate.py`：12 个策略 × 4 个成本情景（费后 5/10/20bps，费前 = 同一引擎、成本为 0）的独立账户，从 2026-01-01 起确定性重放；全市场等权参考组合；正式结果 `artifacts/paper_trading/runs/<run_id>/`（只保留已发布与上一版）。
+- `verify.py`：账户恒等式、成交规则、费用重算、股数重放、与上一版已发布日期一致、网站 JSON 与 run 一致；由 `website/tools/release_check.py --live-run` 作为发布门禁。
+- `report.py`：指标（复用 `core.risk_metrics`：252 日、样本标准差、rf=0）与网站 JSON（`public/data/live_composite/index.json`、`strategies/<C>.json`，按需加载）。
+- `run.py`：每日正式入口（手动与定时同一入口）；`schedule.py`：macOS LaunchAgent（每小时触发，入口按 Asia/Shanghai 08:00 判定）。
+
+页面只展示研究层输出：状态栏（数据截至交易日、最近检查与更新时间、版本、滞后提示）、12 个策略汇总表（默认 C12，C10 / C13 快捷对照）、单策略净值与日频回撤（可切换成本情景）、累计成本、按日期查询持仓与行业分布、按调仓批次查询目标 / 订单 / 成交及未成交原因、公司行动事件、全部假设与 KaTeX 公式、信号对账。网页不计算因子或收益。
+
 ## 8. 公共基准
 
 沪深300价格指数是所有单因子共用的市场环境参考，不是市场中性多空组合的同风险业绩基准。
@@ -298,7 +312,7 @@ publish.py relationships --run <run>
 publish.py check --run <run>
 ```
 
-`composite`与`relationships`都不属于`all`，分别只在组合结果接口或 Stage 7 观察诊断 run 更新后运行，写完数据后各自运行对应的发布校验，失败即非零退出。`check`调用`website/tools/release_check.py`，是推送上线前的统一门禁：核对观察 run 输出哈希，并要求 Stage 7 与组合两个`verify_website.verify()`都返回`all_pass: true`；否则（包括异常、数据缺失、哈希不符）退出码为 1。两个 verify 模块的直接命令行只打印结果，不作发布判据。
+`composite`与`relationships`都不属于`all`，分别只在组合结果接口或 Stage 7 观察诊断 run 更新后运行，写完数据后各自运行对应的发布校验，失败即非零退出。`check`调用`website/tools/release_check.py`，是推送上线前的统一门禁：核对观察 run 输出哈希，并要求 Stage 7 与组合两个`verify_website.verify()`都返回`all_pass: true`；网站已有`live_composite`数据时，还按其`index.json`中的 run（或`--live-run`）核对组合策略模拟；否则（包括异常、数据缺失、哈希不符）退出码为 1。两个 verify 模块的直接命令行只打印结果，不作发布判据。
 
 它只负责读取冻结结果、转换网站JSON、更新catalog和复制公共基准。不得下载数据、运行因子、修改回测产物或生成额外审批文件。
 
@@ -326,7 +340,7 @@ publish.py check --run <run>
 
 ## 11. 网站导航与当前实现
 
-顶层导航展示四个模块。`single_factor`、`factor_relationships`与`composite_backtest`为当前可用模块，各自路由到独立页面（地址栏 hash 记录当前模块，未知或已移除的 hash 回到第一个模块）；`live_composite`显示模块名称、一句功能说明和“待开发”，不显示虚构数据。
+顶层导航展示四个模块。`single_factor`、`factor_relationships`与`composite_backtest`为当前可用模块，各自路由到独立页面（地址栏 hash 记录当前模块，未知或已移除的 hash 回到第一个模块）；`live_composite`为组合策略模拟表现页，由 Stage 8 每日数据驱动。
 
 单因子页面使用一套组件展示所有因子，并提供：
 

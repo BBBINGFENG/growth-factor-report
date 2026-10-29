@@ -1,6 +1,7 @@
 """Release gate for the website data: exit code 0 only when every check passes.
 
     python3 website/tools/release_check.py --relationships-run artifacts/factor_relationships/<run_id>
+    python3 website/tools/release_check.py --live-run artifacts/paper_trading/runs/<run_id>     # daily data gate
 
 Checks (run from the project root, read-only):
 - factor_relationships: the observation run's output files match the sha256 in its manifest,
@@ -74,17 +75,34 @@ def gate(checks: dict[str, Callable[[], object]]) -> tuple[bool, dict]:
     return all(r["status"] == "pass" for r in results.values()), results
 
 
+def live_check(run: Path, web: Path = WEBSITE_DIR / "public" / "data" / "live_composite") -> dict:
+    """Paper-trading run acceptance (accounting, fills, fees, replay) and its website export."""
+    if not run.is_dir():
+        raise FileNotFoundError(f"paper-trading run not found: {run}")
+    from scripts.stage8_paper_trading import verify as S8
+    acc, w = S8.verify_run(run), S8.verify_web(run, web)
+    return {"all_pass": bool(acc["all_pass"] and w["all_pass"]), "mismatches": (acc["failures"] + w["failures"])[:10]}
+
+
 def main(argv: list | None = None, checks: dict | None = None) -> int:
     ap = argparse.ArgumentParser(description="Website release gate (exit 0 only if every check passes).")
-    ap.add_argument("--relationships-run", required=checks is None, type=Path,
+    ap.add_argument("--relationships-run", type=Path,
                     help="Stage 7 observation run published on the site, relative to the project root")
+    ap.add_argument("--live-run", type=Path, help="paper-trading run published on the site (live_composite), relative to the project root")
     ap.add_argument("--skip-composite", action="store_true", help="only for local debugging; a release must not skip checks")
     args = ap.parse_args(argv)
     if checks is None:
-        run = (PROJECT_ROOT / args.relationships_run).resolve()
-        checks = {"factor_relationships": lambda: relationships_check(run)}
-        if not args.skip_composite:
-            checks["composite_backtest"] = composite_check
+        if args.relationships_run is None and args.live_run is None:
+            ap.error("give --relationships-run (full site gate) and/or --live-run (paper-trading data gate)")
+        checks = {}
+        if args.relationships_run is not None:
+            run = (PROJECT_ROOT / args.relationships_run).resolve()
+            checks["factor_relationships"] = lambda: relationships_check(run)
+            if not args.skip_composite:
+                checks["composite_backtest"] = composite_check
+        if args.live_run is not None:
+            live = (PROJECT_ROOT / args.live_run).resolve()
+            checks["live_composite"] = lambda: live_check(live)
     ok, results = gate(checks)
     for name, r in results.items():
         print(f"[{r['status'].upper()}] {name}" + (f": {r['detail']}" if r["detail"] else ""), file=sys.stderr if r["status"] != "pass" else sys.stdout)

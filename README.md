@@ -9,7 +9,7 @@
 | 单因子回测 | 已实现，当前研究范围内43个已发布：Factor 1–26、29–33、35–39、41–47（Factor 27、28、34、40 已固定移出当前研究清单） |
 | 因子相互解释 | 已实现（数据观察页）：上半部分单因子（41 个，按类别分块的跨类别矩阵 + 类内配对），下半部分组合（12 个，D01 可选作估值参考）；矩阵分 2021年前 / 2021年起，配对诊断为全时段曲线 |
 | 组合因子回测 | 已实现：D01（外部依赖，受限研究基线）、10 个主要组合 C01–C04、C08–C13，以及 2 个中间组合 C06、C07；C05 不在范围 |
-| 组合因子实盘表现 | 待开发 |
+| 组合策略模拟表现 | 已实现：12 个组合自 2026-01-01 起的独立模拟账户（历史模拟，非真实成交，非严格样本外），北京时间每天 08:00 起由本地定时任务增量更新 |
 
 单因子 Long-only 回测与 Long-only 实盘两个入口已移除，不再开发。
 
@@ -64,7 +64,7 @@ public/data/shared/benchmarks/csi300_monthly_open_to_open.json
 python3 website/tools/publish.py check --run artifacts/factor_relationships/<当前观察 run>
 ```
 
-等价于 `python3 website/tools/release_check.py --relationships-run <run>`。它先核对观察 run 的输出文件与其 manifest 的 sha256，再调用 `scripts.stage7_factor_relationships.verify_website.verify` 与 `scripts.stage6_composite_factors.verify_website.verify`；只有每项都返回 `all_pass: true` 才以 0 退出，`all_pass` 为 false 或缺失、数据缺失、代码或哈希不符、抛出异常都会以 1 退出。两个 `verify_website` 模块自身的命令行只打印 JSON、总是正常退出，只用于查看明细，不能作为发布判据。门禁代码由网站仓库版本控制追踪，不属于任何研究 run 记录的代码。随后运行 `pnpm run build`（含 TypeScript 检查），两者都通过后再推送。
+等价于 `python3 website/tools/release_check.py --relationships-run <run> --live-run <live_composite/index.json 中的模拟 run>`（也可用 `--live-run` 指定）。它先核对观察 run 的输出文件与其 manifest 的 sha256，再调用 `scripts.stage7_factor_relationships.verify_website.verify`、`scripts.stage6_composite_factors.verify_website.verify` 与组合策略模拟的 `verify_web`；只有每项都返回 `all_pass: true` 才以 0 退出，`all_pass` 为 false 或缺失、数据缺失、代码或哈希不符、抛出异常都会以 1 退出。两个 `verify_website` 模块自身的命令行只打印 JSON、总是正常退出，只用于查看明细，不能作为发布判据。门禁代码由网站仓库版本控制追踪，不属于任何研究 run 记录的代码。随后运行 `pnpm run build`（含 TypeScript 检查），两者都通过后再推送。
 
 内容没有变化时不会重写文件。新因子需要先在 `publish.py` 的 `FACTORS` 中登记英文名和分类；属于新因子家族时，还要在 `reporting.py` 中补充该家族的定义文字模板。只改页面样式或排版时，不重新发布数据。
 
