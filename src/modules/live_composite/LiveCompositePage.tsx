@@ -48,6 +48,7 @@ export default function LiveCompositePage() {
   const [record, setRecord] = useState<Record_>("replay");
   const [tab, setTab] = useState<Tab>("performance");
   const [error, setError] = useState("");
+  const [dataError, setDataError] = useState("");
 
   useEffect(() => {
     loadLiveIndex().then((ix) => {
@@ -60,7 +61,8 @@ export default function LiveCompositePage() {
     if (!selected) return;
     let cancelled = false;
     setData(null);
-    loadStrategy(selected).then((d) => !cancelled && setData(d)).catch((e: Error) => !cancelled && setError(e.message));
+    setDataError("");
+    loadStrategy(selected).then((d) => !cancelled && setData(d)).catch((e: Error) => !cancelled && setDataError(`${selected} 数据读取失败：${e.message}，可切换到其他策略后再切回，或刷新页面重试。`));
     return () => {
       cancelled = true;
     };
@@ -167,7 +169,8 @@ export default function LiveCompositePage() {
       </nav>
       {record === "replay" && ["layers", "cash", "risk"].includes(current) && <p className="caption">研究诊断：基于历史回放账户，用于理解实现偏差与收益来源，不用于调整策略。</p>}
 
-      {!data && current !== "protocol" && <p className="loading">加载中…</p>}
+      {dataError && current !== "protocol" && <p className="error">{dataError}</p>}
+      {!data && !dataError && current !== "protocol" && <p className="loading">加载中…</p>}
 
       {data && m && current === "performance" && record === "replay" && (
         <div className="tab-body">

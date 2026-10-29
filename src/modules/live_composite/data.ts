@@ -229,7 +229,12 @@ export function loadLiveIndex(): Promise<LiveIndex> {
 
 const cache = new Map<string, Promise<StrategyData>>();
 export function loadStrategy(id: string): Promise<StrategyData> {
-  if (!cache.has(id)) cache.set(id, getJson<StrategyData>(`live_composite/strategies/${id}.json`));
+  if (!cache.has(id)) {
+    cache.set(id, getJson<StrategyData>(`live_composite/strategies/${id}.json`).catch((e: Error) => {
+      cache.delete(id);
+      throw e;
+    }));
+  }
   return cache.get(id)!;
 }
 
