@@ -1,13 +1,13 @@
 {
  "schema_version": 1,
- "run_id": "20261029T010149Z",
- "run_manifest_sha256": "022da2dee2d00dc7079016e9c2357f651f53627b39cc7c01392306aa30a327c0",
+ "run_id": "20261029T020643Z",
+ "run_manifest_sha256": "95cccb3a937d15ae2488df8bc410632909f88cd6d839460fcd4dcca136596d0f",
  "status": {
-  "last_check_beijing": "2026-10-29T09:01:09.936438+08:00",
+  "last_check_beijing": "2026-10-29T10:05:06.576645+08:00",
   "data_through": "20261028",
-  "data_updated_beijing": "2026-10-29T09:01:09.936438+08:00",
+  "data_updated_beijing": "2026-10-29T10:05:06.576645+08:00",
   "source_incomplete_calls": {},
-  "run_id": "20261029T010149Z"
+  "run_id": "20261029T020643Z"
  },
  "start_date": "20260101",
  "data_through": "20261028",
