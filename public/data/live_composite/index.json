@@ -7,14 +7,14 @@
   "forward": 0.008929,
   "definition": "C12 与 C10 的可交易费后账户（执行成本 10bps）在同一记录区间内的相对累计收益：(1+R_C12)/(1+R_C10)−1"
  },
- "run_id": "20261105T014233Z",
- "run_manifest_sha256": "c491cb581c2bfef432be66229c7e470815e4bf51ec8d4fbc93bcae4709145ee7",
+ "run_id": "20261105T054353Z",
+ "run_manifest_sha256": "3d73708650fbcca2c833dee13d9922ef84db9c6c25f744f301e846bc50771b4c",
  "status": {
-  "last_check_beijing": "2026-11-05T08:11:44.380253+08:00",
+  "last_check_beijing": "2026-11-05T13:04:48.691249+08:00",
   "data_through": "20261104",
-  "data_updated_beijing": "2026-11-05T08:11:44.380253+08:00",
+  "data_updated_beijing": "2026-11-05T13:04:48.691249+08:00",
   "source_incomplete_calls": {},
-  "run_id": "20261105T014233Z"
+  "run_id": "20261105T054353Z"
  },
  "start_date": "20260101",
  "data_through": "20261104",
